@@ -11,14 +11,19 @@ import android.os.Looper
 import android.view.KeyEvent
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.viewbinding.ViewBinding
 import com.elbek.reminder.R
 import com.elbek.reminder.common.extensions.bindCommand
 
-abstract class BaseFragment<TViewModel> : DialogFragment() where TViewModel : BaseViewModel {
+//TODO: check DialogFragment, and orientation
+abstract class BaseFragment<VM> : DialogFragment() where VM : BaseViewModel {
 
     private val originalScreenOrientationKey: String = ::originalScreenOrientationKey.name
 
-    protected abstract val viewModel: TViewModel
+    protected abstract val viewModel: VM
+    protected abstract val binding: ViewBinding
+
     protected open var customTheme: Int = R.style.AppTheme
     protected open val screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
@@ -91,4 +96,7 @@ abstract class BaseFragment<TViewModel> : DialogFragment() where TViewModel : Ba
     }
 
     protected open fun onBackPressed() = dismissAllowingStateLoss()
+
+    protected fun <T> Fragment.viewLifecycleAware(initialise: () -> T) =
+        ViewBindingDelegate(this, initialise)
 }

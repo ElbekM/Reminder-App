@@ -1,22 +1,1 @@
-package com.elbek.reminder.screens.main
-
-import android.os.Bundle
-import androidx.fragment.app.viewModels
-import com.elbek.reminder.common.core.BaseFragment
-import dagger.hilt.android.AndroidEntryPoint
-
-@AndroidEntryPoint
-class MainFragment : BaseFragment<MainViewModel>() {
-
-    override val viewModel: MainViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        viewModel.init()
-    }
-
-    companion object {
-        fun newInstance(): MainFragment = MainFragment()
-    }
-}
+package com.elbek.reminder.screens.mainimport android.os.Bundleimport android.view.LayoutInflaterimport android.view.Viewimport android.view.ViewGroupimport androidx.fragment.app.viewModelsimport com.elbek.reminder.Rimport com.elbek.reminder.common.core.BaseFragmentimport com.elbek.reminder.common.extensions.bindCommandimport com.elbek.reminder.databinding.FragmentMainBindingimport com.elbek.reminder.screens.general.GeneralFragmentimport com.elbek.reminder.screens.productivity.ProductivityFragmentimport com.elbek.reminder.screens.profile.ProfileFragmentimport dagger.hilt.android.AndroidEntryPoint@AndroidEntryPointclass MainFragment : BaseFragment<MainViewModel>() {    override val viewModel: MainViewModel by viewModels()    override val binding: FragmentMainBinding by viewLifecycleAware {        FragmentMainBinding.bind(requireView())    }    override fun onCreateView(        inflater: LayoutInflater,        container: ViewGroup?,        savedInstanceState: Bundle?    ): View = FragmentMainBinding.inflate(inflater, container, false).root    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {        super.onViewCreated(view, savedInstanceState)        initViews()        bindViewModel()        viewModel.init()    }    override fun bindViewModel() {        super.bindViewModel()        bindCommand(viewModel.switchScreenCommand) { screen ->            binding.bottomBar.itemActiveIndex = screen.index            val fragment = when (screen) {                MainTab.GENERAL -> GeneralFragment.newInstance()                MainTab.PRODUCTIVITY -> ProductivityFragment.newInstance()                MainTab.PROFILE -> ProfileFragment.newInstance()            }            childFragmentManager                .beginTransaction()                .replace(R.id.containerLayout, fragment)                .commitAllowingStateLoss()        }    }    private fun initViews() {        binding.bottomBar.onItemSelected = { index ->            viewModel.onBottomNavigationClicked(index)        }    }    companion object {        fun newInstance(): MainFragment = MainFragment()    }}
