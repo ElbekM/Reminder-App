@@ -1,18 +1,18 @@
-package com.elbek.reminder
+package com.elbek.reminder.common
 
 import android.app.Application
 import android.content.Context
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class MainApplication : Application() {
+class App : Application() {
 
     init {
         instance = this
     }
 
     companion object {
-        private var instance: MainApplication? = null
+        private var instance: App? = null
 
         fun applicationContext(): Context {
             return instance!!.applicationContext
