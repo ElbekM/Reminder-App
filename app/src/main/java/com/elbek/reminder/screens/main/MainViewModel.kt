@@ -12,7 +12,7 @@ class MainViewModel @ViewModelInject constructor(
     val switchScreenCommand = TCommand<MainTab>()
 
     fun init() {
-
+        switchScreenCommand.call(MainTab.GENERAL)
     }
 
     fun onBottomNavigationClicked(index: Int) {
