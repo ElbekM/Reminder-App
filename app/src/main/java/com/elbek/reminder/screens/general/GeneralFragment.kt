@@ -9,6 +9,7 @@ import com.elbek.reminder.common.core.BaseFragment
 import com.elbek.reminder.common.extensions.bindCommand
 import com.elbek.reminder.common.extensions.bindDataToAction
 import com.elbek.reminder.databinding.FragmentGeneralBinding
+import com.elbek.reminder.screens.general.adapters.TaskCardAdapter
 import com.elbek.reminder.screens.general.adapters.TaskTypeAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -38,17 +39,30 @@ class GeneralFragment : BaseFragment<GeneralViewModel>() {
         super.bindViewModel()
 
         with(binding) {
-            bindCommand(viewModel.openTaskListScreenCommand) { type ->
+            bindCommand(viewModel.openTaskListByTypeScreenCommand) { type ->
+                //TODO: open tasklist screen
+            }
+            bindCommand(viewModel.openTaskListByCardScreenCommand) {
                 //TODO: open tasklist screen
             }
 
             bindDataToAction(viewModel.taskTypes) {
                 var adapter = taskTypeRecyclerView.adapter as? TaskTypeAdapter
                 if (adapter == null) {
-                    adapter = TaskTypeAdapter(viewModel::onTypeTaskClicked)
+                    adapter = TaskTypeAdapter(viewModel::onTaskTypeClicked)
                     taskTypeRecyclerView.adapter = adapter
                 }
                 adapter.setItems(it)
+            }
+            bindDataToAction(viewModel.taskCards) {
+                var adapter = taskListRecyclerView.adapter as? TaskCardAdapter
+                if (adapter == null) {
+                    adapter = TaskCardAdapter { (cardType, position) ->
+                        viewModel.onTaskCardClicked(cardType, position)
+                    }
+                    taskListRecyclerView.adapter = adapter
+                }
+                adapter!!.setItems(it)
             }
         }
     }

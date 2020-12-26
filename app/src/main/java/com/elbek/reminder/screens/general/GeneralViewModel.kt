@@ -3,8 +3,11 @@ package com.elbek.reminder.screens.general
 import android.app.Application
 import androidx.hilt.lifecycle.ViewModelInject
 import com.elbek.reminder.common.core.BaseViewModel
+import com.elbek.reminder.common.core.Command
 import com.elbek.reminder.common.core.DataList
 import com.elbek.reminder.common.core.TCommand
+import com.elbek.reminder.screens.general.adapters.TaskCardItem
+import com.elbek.reminder.screens.general.adapters.TaskCardType
 import com.elbek.reminder.screens.general.adapters.TaskTypeItem
 
 class GeneralViewModel @ViewModelInject constructor(
@@ -12,18 +15,31 @@ class GeneralViewModel @ViewModelInject constructor(
 ) : BaseViewModel(application) {
 
     val taskTypes = DataList<TaskTypeItem>()
-    val openTaskListScreenCommand = TCommand<TaskType>()
+    val taskCards = DataList<TaskCardItem>()
+
+    val openTaskListByCardScreenCommand = Command()
+    val openTaskListByTypeScreenCommand = TCommand<TaskType>()
 
     fun init() {
         //openTaskListScreenCommand.call(TaskType.MY_DAY)
         setupTaskTypes()
+        setupTaskCards()
     }
 
-    fun onTypeTaskClicked(position: Int) {
-        TaskType.values().firstOrNull {
-            it.title == taskTypes.value[position].title
-        }?.let {
-            openTaskListScreenCommand.call(it)
+    fun onTaskTypeClicked(position: Int) {
+        TaskType.getByTitle(taskTypes.value[position].title).let { type ->
+            openTaskListByTypeScreenCommand.call(type)
+        }
+    }
+
+    fun onTaskCardClicked(cardType: TaskCardType, position: Int) {
+        when (cardType) {
+            TaskCardType.TASK_LIST -> {
+                openTaskListByCardScreenCommand.call()
+            }
+            TaskCardType.ADD -> {
+                //TODO: Add new task list
+            }
         }
     }
 
@@ -41,5 +57,13 @@ class GeneralViewModel @ViewModelInject constructor(
             )
         }
         taskTypes.value = taskTypeList
+    }
+
+    private fun setupTaskCards() {
+        //TODO: get data from database
+        taskCards.value = listOf(
+            TaskCardItem(0, "My Tasks", 8, 50),
+            TaskCardItem(cardType = TaskCardType.ADD)
+        )
     }
 }
