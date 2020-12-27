@@ -95,7 +95,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/widgetCardBorderView"
             tools:itemCount="5"
-            tools:listitem="@layout/view_task_types" />
+            tools:listitem="@layout/view_task_type_item" />
 
         <View
             android:id="@+id/taskListBorderView"
@@ -124,6 +124,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/taskListBorderView"
             tools:itemCount="5"
-            tools:listitem="@layout/view_task_card" />
+            tools:listitem="@layout/view_task_card_item" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

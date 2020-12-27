@@ -16,7 +16,7 @@ class TaskCardAdapter(private val itemClicked: (Pair<TaskCardType, Int>) -> Unit
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         LayoutInflater.from(parent.context).let { layoutInflater ->
             when (viewType) {
-                R.layout.view_task_card ->
+                R.layout.view_task_card_item ->
                     TaskCardViewHolder(
                         ViewTaskCardBinding.inflate(layoutInflater, parent, false),
                         itemClicked
@@ -40,7 +40,7 @@ class TaskCardAdapter(private val itemClicked: (Pair<TaskCardType, Int>) -> Unit
         }
 
     override fun getItemViewType(position: Int): Int = when (items!![position].cardType) {
-        TaskCardType.TASK_LIST -> R.layout.view_task_card
+        TaskCardType.TASK_LIST -> R.layout.view_task_card_item
         TaskCardType.ADD -> R.layout.view_add_tasklist
     }
 
