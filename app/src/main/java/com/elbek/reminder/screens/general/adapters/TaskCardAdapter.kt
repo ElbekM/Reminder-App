@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.elbek.reminder.R
 import com.elbek.reminder.databinding.ViewAddTasklistBinding
-import com.elbek.reminder.databinding.ViewTaskCardBinding
+import com.elbek.reminder.databinding.ViewTaskCardItemBinding
 import java.lang.IllegalArgumentException
 
 //TODO: Adapter via Kotlin delegate
@@ -18,7 +18,7 @@ class TaskCardAdapter(private val itemClicked: (Pair<TaskCardType, Int>) -> Unit
             when (viewType) {
                 R.layout.view_task_card_item ->
                     TaskCardViewHolder(
-                        ViewTaskCardBinding.inflate(layoutInflater, parent, false),
+                        ViewTaskCardItemBinding.inflate(layoutInflater, parent, false),
                         itemClicked
                     )
                 R.layout.view_add_tasklist ->

@@ -3,7 +3,7 @@ package com.elbek.reminder.screens.general.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.elbek.reminder.databinding.ViewTaskTypesBinding
+import com.elbek.reminder.databinding.ViewTaskTypeItemBinding
 
 //TODO: Adapter via Kotlin delegate
 class TaskTypeAdapter(private val itemClicked: (Int) -> Unit) : RecyclerView.Adapter<TaskTypeViewHolder>() {
@@ -12,7 +12,7 @@ class TaskTypeAdapter(private val itemClicked: (Int) -> Unit) : RecyclerView.Ada
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskTypeViewHolder =
         TaskTypeViewHolder(
-            ViewTaskTypesBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            ViewTaskTypeItemBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             itemClicked
         )
 

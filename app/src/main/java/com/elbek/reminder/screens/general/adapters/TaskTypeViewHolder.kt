@@ -2,10 +2,10 @@ package com.elbek.reminder.screens.general.adapters
 
 import androidx.recyclerview.widget.RecyclerView
 import com.elbek.reminder.common.utils.Utils.validateTaskCount
-import com.elbek.reminder.databinding.ViewTaskTypesBinding
+import com.elbek.reminder.databinding.ViewTaskTypeItemBinding
 
 class TaskTypeViewHolder(
-    private val binding: ViewTaskTypesBinding,
+    private val binding: ViewTaskTypeItemBinding,
     private val itemClicked: (Int) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
