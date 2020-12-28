@@ -1,13 +1,12 @@
 package com.elbek.reminder.models
 
-import com.elbek.reminder.database.entities.SubTaskEntity
-import java.util.Date
+import java.util.*
 
 data class Task(
-    val id: Int,
+    val id: String = UUID.randomUUID().toString(),
     val name: String,
     val description: String? = null,
-    val subTasks: List<SubTaskEntity>? = null,
+    val subTasks: List<SubTask>? = null,
     val createdDate: Date? = null,
     val date: Date? = null,
     val isImportant: Boolean = false,

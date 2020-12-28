@@ -1,10 +1,10 @@
 package com.elbek.reminder.models
 
-import com.elbek.reminder.database.entities.TaskEntity
+import java.util.UUID
 
 data class TaskList(
-    val id: Int,
+    val id: String = UUID.randomUUID().toString(),
     val icon: Int? = null,
     val name: String,
-    val tasks: List<TaskEntity>? = null
+    val tasks: List<Task>? = null
 )

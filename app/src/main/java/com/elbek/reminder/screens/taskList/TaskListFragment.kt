@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import com.elbek.reminder.common.core.BaseFragment
 import com.elbek.reminder.databinding.FragmentTasklistBinding
@@ -28,7 +29,9 @@ class TaskListFragment : BaseFragment<TaskListViewModel>() {
 
         initViews()
         bindViewModel()
-        viewModel.init()
+        viewModel.init(
+            requireArguments().getString(taskListIdKey)
+        )
     }
 
     override fun bindViewModel() {
@@ -40,6 +43,11 @@ class TaskListFragment : BaseFragment<TaskListViewModel>() {
     }
 
     companion object {
-        fun newInstance(): TaskListFragment = TaskListFragment()
+        private val taskListIdKey: String = ::taskListIdKey.name
+
+        fun newInstance(taskListId: String): TaskListFragment =
+            TaskListFragment().apply {
+                arguments = bundleOf(taskListIdKey to taskListId)
+            }
     }
 }

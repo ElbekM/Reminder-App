@@ -3,6 +3,7 @@ package com.elbek.reminder.common.core
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.IntegerRes
@@ -66,7 +67,8 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    protected fun logError(exception: Exception) {
+    protected fun logError(exception: Throwable, message: String = "Error") {
+        Log.e("APP", "$message -- ${exception.localizedMessage}")
         exception.printStackTrace()
     }
 

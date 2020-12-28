@@ -3,39 +3,53 @@ package com.elbek.reminder.screens.general
 import android.app.Application
 import androidx.hilt.lifecycle.ViewModelInject
 import com.elbek.reminder.common.core.BaseViewModel
-import com.elbek.reminder.common.core.Command
 import com.elbek.reminder.common.core.DataList
 import com.elbek.reminder.common.core.TCommand
+import com.elbek.reminder.interactors.TaskListInteractor
+import com.elbek.reminder.models.TaskList
 import com.elbek.reminder.screens.general.adapters.TaskCardItem
 import com.elbek.reminder.screens.general.adapters.TaskCardType
 import com.elbek.reminder.screens.general.adapters.TaskTypeItem
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 class GeneralViewModel @ViewModelInject constructor(
+    private val taskListInteractor: TaskListInteractor,
     application: Application
 ) : BaseViewModel(application) {
 
+    private var taskLists: List<TaskList> = listOf()
+
     val taskTypes = DataList<TaskTypeItem>()
     val taskCards = DataList<TaskCardItem>()
-
-    val openTaskListByCardScreenCommand = Command()
-    val openTaskListByTypeScreenCommand = TCommand<TaskType>()
+    val openTaskListScreenCommand = TCommand<String>()
 
     fun init() {
-        //openTaskListScreenCommand.call(TaskType.MY_DAY)
-        setupTaskTypes()
-        setupTaskCards()
+        taskListInteractor.getAllTaskLists()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                taskLists = it
+                setupTaskTypes()
+                setupTaskCards()
+
+                openTaskListScreenCommand.call(taskLists[0].id)
+            }, {})
+            .addToSubscriptions()
     }
 
     fun onTaskTypeClicked(position: Int) {
-        TaskType.getByTitle(taskTypes.value[position].title).let { type ->
-            openTaskListByTypeScreenCommand.call(type)
-        }
+        val taskListId = taskLists[position].id
+        openTaskListScreenCommand.call(taskListId)
     }
 
     fun onTaskCardClicked(cardType: TaskCardType, position: Int) {
         when (cardType) {
             TaskCardType.TASK_LIST -> {
-                openTaskListByCardScreenCommand.call()
+                val offset = TaskType.values().size + position
+                val taskListId = taskLists[offset].id
+                openTaskListScreenCommand.call(taskListId)
             }
             TaskCardType.ADD -> {
                 //TODO: Add new task list
@@ -44,26 +58,44 @@ class GeneralViewModel @ViewModelInject constructor(
     }
 
     private fun setupTaskTypes() {
-        //TODO: add task count
-        val taskTypeList = mutableListOf<TaskTypeItem>()
-
-        TaskType.values().forEach { taskType ->
-            taskTypeList.add(
-                TaskTypeItem(
-                    taskType.icon,
-                    taskType.title,
-                    0
-                )
-            )
-        }
-        taskTypes.value = taskTypeList
+        taskListInteractor.getDefaultTaskLists(taskLists)
+            .subscribeOn(Schedulers.io())
+            .flatMap { taskLists ->
+                Observable.fromIterable(taskLists)
+                    .map {
+                        TaskTypeItem(
+                            icon = it.icon,
+                            title = it.name,
+                            taskCount = it.tasks?.size ?: 0
+                        )
+                    }.toList()
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                taskTypes.value = it
+            }, { logError(it) })
+            .addToSubscriptions()
     }
 
     private fun setupTaskCards() {
-        //TODO: get data from database
-        taskCards.value = listOf(
-            TaskCardItem(0, "My Tasks", 8, 50),
-            TaskCardItem(cardType = TaskCardType.ADD)
-        )
+        //TODO: get progress, check publish subjects
+        taskListInteractor.getTaskLists(taskLists)
+            .subscribeOn(Schedulers.io())
+            .flatMap { taskLists ->
+                Observable.fromIterable(taskLists)
+                    .map {
+                        TaskCardItem(
+                            icon = it.icon,
+                            title = it.name,
+                            taskCount = it.tasks?.size ?: 0,
+                            progress = 0
+                        )
+                    }.toList()
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                taskCards.value = it
+            }, { logError(it) })
+            .addToSubscriptions()
     }
 }

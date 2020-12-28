@@ -6,16 +6,28 @@ import com.elbek.reminder.models.TaskList
 
 @Entity
 data class TaskListEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    @PrimaryKey
+    val id: String,
     val icon: Int?,
     val name: String,
     val tasks: List<TaskEntity>?
 ) {
+    constructor(taskLists: TaskList) : this(
+        id = taskLists.id,
+        icon = taskLists.icon,
+        name = taskLists.name,
+        tasks = TaskEntity.createList(taskLists.tasks)
+    )
+
     fun toModel(): TaskList = TaskList(
         id = id,
         icon = icon,
         name = name,
-        tasks = tasks
+        tasks = tasks?.map { it.toModel() }
     )
+
+    companion object {
+        fun createList(taskLists: List<TaskList>): List<TaskListEntity> =
+            taskLists.map { TaskListEntity(it) }
+    }
 }

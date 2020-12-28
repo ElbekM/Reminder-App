@@ -1,11 +1,11 @@
 package com.elbek.reminder.common.extensions
 
-import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
-//TODO: check commit
-fun DialogFragment.showAllowingStateLoss(
-    fm: FragmentManager = childFragmentManager,
+//TODO: check commit, set fm by default
+fun Fragment.showAllowingStateLoss(
+    fm: FragmentManager,
     tag: String = this::class.java.name
 ) =
     fm.beginTransaction()

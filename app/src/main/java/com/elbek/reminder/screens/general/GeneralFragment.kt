@@ -8,9 +8,11 @@ import androidx.fragment.app.viewModels
 import com.elbek.reminder.common.core.BaseFragment
 import com.elbek.reminder.common.extensions.bindCommand
 import com.elbek.reminder.common.extensions.bindDataToAction
+import com.elbek.reminder.common.extensions.showAllowingStateLoss
 import com.elbek.reminder.databinding.FragmentGeneralBinding
 import com.elbek.reminder.screens.general.adapters.TaskCardAdapter
 import com.elbek.reminder.screens.general.adapters.TaskTypeAdapter
+import com.elbek.reminder.screens.taskList.TaskListFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -39,11 +41,10 @@ class GeneralFragment : BaseFragment<GeneralViewModel>() {
         super.bindViewModel()
 
         with(binding) {
-            bindCommand(viewModel.openTaskListByTypeScreenCommand) { type ->
-                //TODO: open tasklist screen
-            }
-            bindCommand(viewModel.openTaskListByCardScreenCommand) {
-                //TODO: open tasklist screen
+            bindCommand(viewModel.openTaskListScreenCommand) { id ->
+                TaskListFragment
+                    .newInstance(id)
+                    .showAllowingStateLoss(childFragmentManager)
             }
 
             bindDataToAction(viewModel.taskTypes) {
