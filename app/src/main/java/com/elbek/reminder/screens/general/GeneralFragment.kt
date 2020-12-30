@@ -46,6 +46,11 @@ class GeneralFragment : BaseFragment<GeneralViewModel>() {
                     .newInstance(id)
                     .showAllowingStateLoss(childFragmentManager)
             }
+            bindCommand(viewModel.createNewTaskListCommand) {
+                TaskListFragment
+                    .newInstance()
+                    .showAllowingStateLoss(childFragmentManager)
+            }
 
             bindDataToAction(viewModel.taskTypes) {
                 var adapter = taskTypeRecyclerView.adapter as? TaskTypeAdapter

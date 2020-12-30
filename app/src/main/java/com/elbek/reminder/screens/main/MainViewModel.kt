@@ -6,16 +6,14 @@ import androidx.hilt.lifecycle.ViewModelInject
 import com.elbek.reminder.common.core.BaseViewModel
 import com.elbek.reminder.common.core.TCommand
 import com.elbek.reminder.common.utils.Constants
-import com.elbek.reminder.interactors.TaskListInteractor
+import com.elbek.reminder.interactors.DefaultTaskListInteractor
 import com.elbek.reminder.models.TaskList
 import com.elbek.reminder.screens.general.TaskType
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 
 class MainViewModel @ViewModelInject constructor(
-    private val taskListInteractor: TaskListInteractor,
+    private val defaultTaskListInteractor: DefaultTaskListInteractor,
     application: Application
 ) : BaseViewModel(application) {
 
@@ -52,10 +50,7 @@ class MainViewModel @ViewModelInject constructor(
                         )
                     }.toList()
             }
-            .flatMapCompletable { taskListInteractor.insertTaskLists(it) }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({}, { logError(it) })
-            .addToSubscriptions()
+            .flatMapCompletable { defaultTaskListInteractor.insertTaskLists(it) }
+            .subscribeOnIoObserveOnMain()
     }
 }

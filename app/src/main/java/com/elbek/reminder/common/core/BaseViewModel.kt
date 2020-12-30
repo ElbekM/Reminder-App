@@ -10,8 +10,12 @@ import androidx.annotation.IntegerRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
+import io.reactivex.Completable
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 
@@ -73,6 +77,18 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     }
 
     protected fun Disposable.addToSubscriptions() { subscriptions.add(this) }
+
+    protected fun <T> Single<T>.subscribeOnIoObserveOnMain() =
+        this.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe()
+            .addToSubscriptions()
+
+    protected fun Completable.subscribeOnIoObserveOnMain() =
+        this.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({}, { logError(it) })
+            .addToSubscriptions()
 
     fun BaseViewModel.getResString(@StringRes resId: Int, vararg formatArgs: Any): String =
         context.getString(resId, *formatArgs)

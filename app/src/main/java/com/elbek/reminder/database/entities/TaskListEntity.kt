@@ -9,7 +9,7 @@ data class TaskListEntity(
     @PrimaryKey
     val id: String,
     val icon: Int?,
-    val name: String,
+    val name: String?,
     val tasks: List<TaskEntity>?
 ) {
     constructor(taskLists: TaskList) : this(

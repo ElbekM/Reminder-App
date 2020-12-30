@@ -12,7 +12,7 @@ class TaskCardViewHolder(
 
     fun bind(item: TaskCardItem) = with(binding) {
         //taskListIconImageView = item.icon
-        taskListNameTextView.text = item.title
+        taskListNameEditText.text = item.title
         taskCountTextView.text = validateTaskCount(item.taskCount ?: 0)
         taskListProgressBar.progress = item.progress ?: 0
         taskListProgressTextView.text = item.progress.toString()

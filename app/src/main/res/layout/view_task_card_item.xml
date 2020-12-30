@@ -77,7 +77,7 @@
             tools:text="14 tasks" />
 
         <TextView
-            android:id="@+id/taskListNameTextView"
+            android:id="@+id/taskListNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"
