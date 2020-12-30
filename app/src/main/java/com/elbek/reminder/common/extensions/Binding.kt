@@ -6,13 +6,13 @@ import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
-import com.elbek.reminder.common.core.Command
-import com.elbek.reminder.common.core.Data
-import com.elbek.reminder.common.core.TCommand
-import com.elbek.reminder.common.core.Visible
-import com.elbek.reminder.common.core.DataList
-import com.elbek.reminder.common.core.Enabled
-import com.elbek.reminder.common.core.Text
+import com.elbek.reminder.common.core.commands.Command
+import com.elbek.reminder.common.core.commands.Data
+import com.elbek.reminder.common.core.commands.TCommand
+import com.elbek.reminder.common.core.commands.Visible
+import com.elbek.reminder.common.core.commands.DataList
+import com.elbek.reminder.common.core.commands.Enabled
+import com.elbek.reminder.common.core.commands.Text
 import com.elbek.reminder.common.core.properties.WrappedMutableLiveData
 
 fun LifecycleOwner.bindCommand(command: Command, block: () -> Unit) =

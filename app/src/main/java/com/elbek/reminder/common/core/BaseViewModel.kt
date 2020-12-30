@@ -10,6 +10,8 @@ import androidx.annotation.IntegerRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
+import com.elbek.reminder.common.core.commands.Command
+import com.elbek.reminder.common.core.commands.TCommand
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers

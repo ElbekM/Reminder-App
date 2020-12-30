@@ -3,11 +3,11 @@ package com.elbek.reminder.screens.taskList
 import android.app.Application
 import androidx.hilt.lifecycle.ViewModelInject
 import com.elbek.reminder.common.core.BaseViewModel
-import com.elbek.reminder.common.core.Command
-import com.elbek.reminder.common.core.DataList
-import com.elbek.reminder.common.core.TCommand
-import com.elbek.reminder.common.core.Text
-import com.elbek.reminder.common.core.Visible
+import com.elbek.reminder.common.core.commands.Command
+import com.elbek.reminder.common.core.commands.DataList
+import com.elbek.reminder.common.core.commands.TCommand
+import com.elbek.reminder.common.core.commands.Text
+import com.elbek.reminder.common.core.commands.Visible
 import com.elbek.reminder.interactors.CustomTaskListInteractor
 import com.elbek.reminder.interactors.DefaultTaskListInteractor
 import com.elbek.reminder.models.TaskList

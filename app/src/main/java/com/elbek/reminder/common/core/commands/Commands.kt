@@ -1,7 +1,5 @@
-package com.elbek.reminder.common.core
+package com.elbek.reminder.common.core.commands
 
-import com.elbek.reminder.common.core.commands.LiveEvent
-import com.elbek.reminder.common.core.commands.SingleLiveEvent
 import com.elbek.reminder.common.core.properties.*
 
 typealias Command = LiveEvent

@@ -3,8 +3,8 @@ package com.elbek.reminder.screens.taskList.settings
 import android.app.Application
 import androidx.hilt.lifecycle.ViewModelInject
 import com.elbek.reminder.common.core.BaseViewModel
-import com.elbek.reminder.common.core.Command
-import com.elbek.reminder.common.core.Enabled
+import com.elbek.reminder.common.core.commands.Command
+import com.elbek.reminder.common.core.commands.Enabled
 import com.elbek.reminder.interactors.CustomTaskListInteractor
 
 class TaskListSettingsViewModel @ViewModelInject constructor(

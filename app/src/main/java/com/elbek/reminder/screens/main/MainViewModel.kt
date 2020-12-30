@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.hilt.lifecycle.ViewModelInject
 import com.elbek.reminder.common.core.BaseViewModel
-import com.elbek.reminder.common.core.TCommand
+import com.elbek.reminder.common.core.commands.TCommand
 import com.elbek.reminder.common.utils.Constants
 import com.elbek.reminder.interactors.DefaultTaskListInteractor
 import com.elbek.reminder.models.TaskList
