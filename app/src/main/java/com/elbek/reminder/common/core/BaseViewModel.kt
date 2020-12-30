@@ -78,17 +78,15 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
 
     protected fun Disposable.addToSubscriptions() { subscriptions.add(this) }
 
-    protected fun <T> Single<T>.subscribeOnIoObserveOnMain() =
+    protected fun <T> Single<T>.subscribeOnIoObserveOnMain(block: () -> Unit = {}) =
         this.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe()
-            .addToSubscriptions()
+            .subscribe({ block() }, { logError(it) })
 
-    protected fun Completable.subscribeOnIoObserveOnMain() =
+    protected fun Completable.subscribeOnIoObserveOnMain(block: () -> Unit = {}) =
         this.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({}, { logError(it) })
-            .addToSubscriptions()
+            .subscribe({ block() }, { logError(it) })
 
     fun BaseViewModel.getResString(@StringRes resId: Int, vararg formatArgs: Any): String =
         context.getString(resId, *formatArgs)

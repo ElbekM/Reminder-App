@@ -6,8 +6,6 @@ import com.elbek.reminder.common.core.BaseViewModel
 import com.elbek.reminder.common.core.Command
 import com.elbek.reminder.common.core.Enabled
 import com.elbek.reminder.interactors.CustomTaskListInteractor
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 
 class TaskListSettingsViewModel @ViewModelInject constructor(
     private val taskListInteractor: CustomTaskListInteractor,
@@ -30,11 +28,7 @@ class TaskListSettingsViewModel @ViewModelInject constructor(
 
     fun onDeleteClicked() {
         taskListInteractor.deleteTaskListById(taskListId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                taskListRemoved.call()
-            }, { logError(it) })
+            .subscribeOnIoObserveOnMain { taskListRemoved.call() }
             .addToSubscriptions()
     }
 }

@@ -52,5 +52,6 @@ class MainViewModel @ViewModelInject constructor(
             }
             .flatMapCompletable { defaultTaskListInteractor.insertTaskLists(it) }
             .subscribeOnIoObserveOnMain()
+            .addToSubscriptions()
     }
 }

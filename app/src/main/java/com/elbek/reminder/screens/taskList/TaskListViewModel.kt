@@ -84,9 +84,11 @@ class TaskListViewModel @ViewModelInject constructor(
         if (taskList == null) {
             taskListInteractor.insertTaskList(TaskList(name = taskListName))
                 .subscribeOnIoObserveOnMain()
+                .addToSubscriptions()
         } else {
             taskListInteractor.updateTaskListName(taskList!!.id, taskListName!!)
                 .subscribeOnIoObserveOnMain()
+                .addToSubscriptions()
         }
     }
 

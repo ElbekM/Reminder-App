@@ -57,9 +57,7 @@ class GeneralViewModel @ViewModelInject constructor(
     fun loadData() {
         taskListInteractor.getTaskLists()
             .andThen(defaultTaskListInteractor.getTaskLists())
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({}, {})
+            .subscribeOnIoObserveOnMain()
             .addToSubscriptions()
     }
 
