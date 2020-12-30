@@ -11,15 +11,15 @@ import com.elbek.reminder.common.extensions.bindCommand
 import com.elbek.reminder.common.extensions.bindDataToAction
 import com.elbek.reminder.common.extensions.bindText
 import com.elbek.reminder.common.extensions.bindVisible
-import com.elbek.reminder.common.extensions.hideKeyboard
-import com.elbek.reminder.common.extensions.showKeyboard
+import com.elbek.reminder.common.extensions.show
 import com.elbek.reminder.databinding.FragmentTasklistBinding
 import com.elbek.reminder.screens.taskList.adapter.TaskListAdapter
-import com.elbek.reminder.views.TaskNameEditText
+import com.elbek.reminder.screens.taskList.settings.TaskListSettingsBottomSheetFragment
+import com.elbek.reminder.views.TaskEditText
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class TaskListFragment : BaseFragment<TaskListViewModel>() {
+class TaskListFragment : BaseFragment<TaskListViewModel>(), TaskListSettingsBottomSheetFragment.Listener {
 
     override val viewModel: TaskListViewModel by viewModels()
     override val binding: FragmentTasklistBinding by viewLifecycleAware {
@@ -51,13 +51,15 @@ class TaskListFragment : BaseFragment<TaskListViewModel>() {
             bindVisible(viewModel.addNewTaskButtonVisible, addNewTaskCardView)
 
             bindCommand(viewModel.openNewTaskScreenCommand) {
-                //TODO: add new task via bottom sheet
+                //TODO: add new task via bottom sheet (NO, like new TaskList)
+            }
+            bindCommand(viewModel.openSettingsBottomSheetCommand) {
+                TaskListSettingsBottomSheetFragment
+                    .newInstance(it)
+                    .show(childFragmentManager)
             }
             bindCommand(viewModel.setTaskListNameFocusCommand) {
-                taskListNameEditText.showKeyboard()
-            }
-            bindCommand(viewModel.hideKeyboardCommand) {
-                requireView().hideKeyboard()
+                taskListNameEditText.enableEditor()
             }
 
             bindDataToAction(viewModel.taskListItems) { items ->
@@ -73,13 +75,20 @@ class TaskListFragment : BaseFragment<TaskListViewModel>() {
         }
     }
 
+    override fun onTaskListRenamed() {
+        viewModel.setFocusToTitle()
+    }
+
+    override fun onTaskListDeleted() = onBackPressed()
+
     private fun initViews() = with(binding) {
         backImageView.setOnClickListener { onBackPressed() }
+        settingsImageView.setOnClickListener { viewModel.onSettingsClicked() }
         addNewTaskCardView.setOnClickListener { viewModel.onAddNewTaskClicked() }
 
         taskListNameEditText.apply {
             initKeyListener()
-            setOnKeyListener(object : TaskNameEditText.KeyListener {
+            setOnKeyListener(object : TaskEditText.KeyListener {
                 override fun onComplete() {
                     viewModel.onTaskListNameUpdated(text.toString())
                 }

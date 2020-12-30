@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import com.elbek.reminder.R
 import com.elbek.reminder.common.extensions.bindCommand
@@ -53,4 +54,7 @@ abstract class BaseBottomSheetFragment<VM> : BottomSheetDialogFragment() where V
                 start()
             }
     }
+
+    protected fun <T> Fragment.viewLifecycleAware(initialise: () -> T) =
+        ViewBindingDelegate(this, initialise)
 }

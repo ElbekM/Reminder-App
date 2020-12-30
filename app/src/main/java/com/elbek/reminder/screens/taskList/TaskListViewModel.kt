@@ -5,6 +5,7 @@ import androidx.hilt.lifecycle.ViewModelInject
 import com.elbek.reminder.common.core.BaseViewModel
 import com.elbek.reminder.common.core.Command
 import com.elbek.reminder.common.core.DataList
+import com.elbek.reminder.common.core.TCommand
 import com.elbek.reminder.common.core.Text
 import com.elbek.reminder.common.core.Visible
 import com.elbek.reminder.interactors.CustomTaskListInteractor
@@ -32,7 +33,7 @@ class TaskListViewModel @ViewModelInject constructor(
 
     val openNewTaskScreenCommand = Command()
     val setTaskListNameFocusCommand = Command()
-    val hideKeyboardCommand = Command()
+    val openSettingsBottomSheetCommand = TCommand<String>()
 
     fun init(taskListId: String?) {
         taskListId?.let {
@@ -68,6 +69,12 @@ class TaskListViewModel @ViewModelInject constructor(
         }
     }
 
+    fun onSettingsClicked() {
+        taskList?.let {
+            openSettingsBottomSheetCommand.call(it.id)
+        }
+    }
+
     fun onAddNewTaskClicked() {
         openNewTaskScreenCommand.call()
     }
@@ -83,7 +90,7 @@ class TaskListViewModel @ViewModelInject constructor(
         }
     }
 
-    private fun setFocusToTitle() {
+    fun setFocusToTitle() {
         addNewTaskButtonVisible.value = false
         setTaskListNameFocusCommand.call()
     }

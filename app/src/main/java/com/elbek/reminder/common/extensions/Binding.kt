@@ -11,6 +11,7 @@ import com.elbek.reminder.common.core.Data
 import com.elbek.reminder.common.core.TCommand
 import com.elbek.reminder.common.core.Visible
 import com.elbek.reminder.common.core.DataList
+import com.elbek.reminder.common.core.Enabled
 import com.elbek.reminder.common.core.Text
 import com.elbek.reminder.common.core.properties.WrappedMutableLiveData
 
@@ -25,6 +26,9 @@ fun LifecycleOwner.bindVisible(liveData: Visible, view: View, setInvisible: Bool
         if (setInvisible) view.isInvisible = it
         else view.isVisible = it
     })
+
+fun LifecycleOwner.bindEnabled(liveData: Enabled, view: View) =
+    liveData.observe(this, { view.isEnabled = it })
 
 fun <T> LifecycleOwner.bindDataToAction(liveData: Data<T>, block: (T) -> Unit) =
     liveData.observe(this, Observer(block))

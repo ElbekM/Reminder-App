@@ -7,7 +7,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.appcompat.widget.AppCompatEditText
 import com.elbek.reminder.common.extensions.hideKeyboard
 
-class TaskNameEditText @JvmOverloads constructor(
+class TaskEditText @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = android.R.attr.editTextStyle
@@ -18,12 +18,14 @@ class TaskNameEditText @JvmOverloads constructor(
     init {
         background = null
         inputType = EditorInfo.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+        isFocusable = false
+        isFocusableInTouchMode = false
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             isFocusable = false
-            isFocusableInTouchMode = true
+            isFocusableInTouchMode = false
 
             listener?.onComplete()
         }
@@ -35,7 +37,7 @@ class TaskNameEditText @JvmOverloads constructor(
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
                 hideKeyboard()
                 isFocusable = false
-                isFocusableInTouchMode = true
+                isFocusableInTouchMode = false
 
                 listener?.onComplete()
                 return@setOnKeyListener true
@@ -43,6 +45,15 @@ class TaskNameEditText @JvmOverloads constructor(
                 return@setOnKeyListener false
             }
         }
+    }
+
+    fun enableEditor() {
+        //TODO(fix): keyboard doest show
+        isFocusable = true
+        isFocusableInTouchMode = true
+        requestFocus()
+        setSelection(text?.length ?: 0)
+        //showKeyboard()
     }
 
     fun setOnKeyListener(listener: KeyListener) {
