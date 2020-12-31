@@ -15,6 +15,7 @@ import com.elbek.reminder.common.extensions.show
 import com.elbek.reminder.databinding.FragmentTasklistBinding
 import com.elbek.reminder.screens.taskList.adapter.TaskListAdapter
 import com.elbek.reminder.screens.taskList.settings.TaskListSettingsBottomSheetFragment
+import com.elbek.reminder.screens.taskList.task.NewTaskBottomSheetFragment
 import com.elbek.reminder.views.TaskEditText
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -50,11 +51,13 @@ class TaskListFragment : BaseFragment<TaskListViewModel>(), TaskListSettingsBott
             bindText(viewModel.dateTimeText, dateTextView)
             bindVisible(viewModel.addNewTaskButtonVisible, addNewTaskCardView)
 
-            bindCommand(viewModel.openNewTaskScreenCommand) {
-                //TODO: add new task via bottom sheet (NO, like new TaskList)
-            }
             bindCommand(viewModel.openSettingsBottomSheetCommand) {
                 TaskListSettingsBottomSheetFragment
+                    .newInstance(it)
+                    .show(childFragmentManager)
+            }
+            bindCommand(viewModel.openNewTaskScreenCommand) {
+                NewTaskBottomSheetFragment
                     .newInstance(it)
                     .show(childFragmentManager)
             }

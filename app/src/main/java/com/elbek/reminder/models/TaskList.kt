@@ -6,5 +6,5 @@ data class TaskList(
     val id: String = UUID.randomUUID().toString(),
     val icon: Int? = null,
     var name: String?,
-    val tasks: List<Task>? = null
+    var tasks: MutableList<Task> = mutableListOf()
 )

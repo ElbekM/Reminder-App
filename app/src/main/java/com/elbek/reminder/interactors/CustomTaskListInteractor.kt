@@ -1,7 +1,9 @@
 package com.elbek.reminder.interactors
 
 import com.elbek.reminder.database.TaskListDao
+import com.elbek.reminder.database.entities.TaskEntity
 import com.elbek.reminder.database.entities.TaskListEntity
+import com.elbek.reminder.models.Task
 import com.elbek.reminder.models.TaskList
 import com.elbek.reminder.screens.general.TaskType
 import io.reactivex.Completable
@@ -47,7 +49,7 @@ class CustomTaskListInteractor @Inject constructor(
 
     fun updateTaskListName(id: String, newName: String): Completable =
         Single.fromCallable {
-            taskLists = taskLists.apply { find { it.id == id }?.name = newName }
+            taskLists = taskLists.apply { findById(id)?.name = newName }
         }
             .flatMapCompletable { database.updateTaskListName(id, newName) }
 
@@ -57,12 +59,23 @@ class CustomTaskListInteractor @Inject constructor(
         }
             .flatMapCompletable { database.deleteTaskList(id) }
 
-    //    fun updateTasks(id: String, tasks: List<Task>): Completable =
-    //        Single.fromCallable {
-    //            tasks.run { map { TaskEntity(it) } }
-    //        }
-    //            .observeOn(Schedulers.io())
-    //            .flatMapCompletable {
-    //                database.updateTasks(id, it)
-    //            }
+    fun insertTask(id: String, task: Task): Completable =
+        Single.fromCallable {
+            taskLists = taskLists.apply { findById(id)?.tasks?.add(task) }
+        }
+            .observeOn(Schedulers.io()) //TODO: check threads
+            .map { taskLists.findById(id)?.tasks?.run { map { TaskEntity(it) } } }
+            .flatMapCompletable { database.updateTasks(id, it) }
+
+    fun updateTasks(id: String, tasks: List<Task>): Completable =
+        Single.fromCallable {
+            taskLists = taskLists.apply { findById(id)?.tasks = tasks.toMutableList() }
+        }
+            .observeOn(Schedulers.io())
+            .map { tasks.run { map { TaskEntity(it) } } }
+            .flatMapCompletable {
+                database.updateTasks(id, it)
+            }
+
+    fun List<TaskList>.findById(id: String) = find { it.id == id }
 }

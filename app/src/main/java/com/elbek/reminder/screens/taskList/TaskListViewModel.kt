@@ -10,6 +10,7 @@ import com.elbek.reminder.common.core.commands.Text
 import com.elbek.reminder.common.core.commands.Visible
 import com.elbek.reminder.interactors.CustomTaskListInteractor
 import com.elbek.reminder.interactors.DefaultTaskListInteractor
+import com.elbek.reminder.models.Task
 import com.elbek.reminder.models.TaskList
 import com.elbek.reminder.screens.taskList.adapter.TaskClickType
 import com.elbek.reminder.screens.taskList.adapter.TaskListItem
@@ -31,8 +32,8 @@ class TaskListViewModel @ViewModelInject constructor(
     val addNewTaskButtonVisible = Visible()
     val taskListItems = DataList<TaskListItem>()
 
-    val openNewTaskScreenCommand = Command()
     val setTaskListNameFocusCommand = Command()
+    val openNewTaskScreenCommand = TCommand<String>()
     val openSettingsBottomSheetCommand = TCommand<String>()
 
     fun init(taskListId: String?) {
@@ -46,6 +47,17 @@ class TaskListViewModel @ViewModelInject constructor(
         }
 
         taskListInteractor.databaseUpdated
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ taskLists ->
+                taskList = taskListId?.let { id ->
+                    taskLists.firstOrNull { it.id == id }
+                } ?: taskLists.last()
+                updateView()
+            }, {})
+            .addToSubscriptions()
+
+        defaultTaskListInteractor.databaseUpdated
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ taskLists ->
@@ -76,7 +88,9 @@ class TaskListViewModel @ViewModelInject constructor(
     }
 
     fun onAddNewTaskClicked() {
-        openNewTaskScreenCommand.call()
+        taskList?.let {
+            openNewTaskScreenCommand.call(it.id)
+        }
     }
 
     fun onTaskListNameUpdated(taskListName: String?) {
@@ -101,6 +115,7 @@ class TaskListViewModel @ViewModelInject constructor(
         //TODO: set current date, count compl tasks
         taskListNameText.value = taskList?.name ?: ""
         dateTimeText.value = "Saturday, 21 November"
+        addNewTaskButtonVisible.value = true
 
         taskList?.tasks?.let { tasks ->
             Observable.fromIterable(tasks)

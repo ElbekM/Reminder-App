@@ -23,7 +23,7 @@ data class TaskListEntity(
         id = id,
         icon = icon,
         name = name,
-        tasks = tasks?.map { it.toModel() }
+        tasks = tasks?.map { it.toModel() }?.toMutableList() ?: mutableListOf()
     )
 
     companion object {

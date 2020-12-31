@@ -47,7 +47,7 @@ class GeneralViewModel @ViewModelInject constructor(
                 defaultTaskLists = it.toMutableList()
                 setupTaskTypes()
 
-                openTaskListScreenCommand.call(defaultTaskLists[0].id)
+                //openTaskListScreenCommand.call(defaultTaskLists[0].id)
             }, {})
             .addToSubscriptions()
 
@@ -84,7 +84,7 @@ class GeneralViewModel @ViewModelInject constructor(
                 TaskTypeItem(
                     icon = it.icon,
                     title = it.name,
-                    taskCount = it.tasks?.size ?: 0
+                    taskCount = it.tasks.size
                 )
             }.toList()
             .subscribeOn(Schedulers.io())
@@ -102,7 +102,7 @@ class GeneralViewModel @ViewModelInject constructor(
                 TaskCardItem(
                     icon = it.icon,
                     title = it.name,
-                    taskCount = it.tasks?.size ?: 0,
+                    taskCount = it.tasks.size,
                     progress = 0
                 )
             }.toList()

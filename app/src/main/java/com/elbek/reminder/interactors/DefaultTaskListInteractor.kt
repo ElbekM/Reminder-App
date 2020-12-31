@@ -1,7 +1,9 @@
 package com.elbek.reminder.interactors
 
 import com.elbek.reminder.database.TaskListDao
+import com.elbek.reminder.database.entities.TaskEntity
 import com.elbek.reminder.database.entities.TaskListEntity
+import com.elbek.reminder.models.Task
 import com.elbek.reminder.models.TaskList
 import com.elbek.reminder.screens.general.TaskType
 import io.reactivex.Completable
@@ -46,4 +48,14 @@ class DefaultTaskListInteractor @Inject constructor(
                 taskLists = taskLists.apply { addAll(list) }
                 database.insert(it)
             }
+
+    fun insertTask(id: String, task: Task): Completable =
+        Single.fromCallable {
+            taskLists = taskLists.apply { findById(id)?.tasks?.add(task) }
+        }
+            .observeOn(Schedulers.io())
+            .map { taskLists.findById(id)?.tasks?.run { map { TaskEntity(it) } } }
+            .flatMapCompletable { database.updateTasks(id, it) }
+
+    fun List<TaskList>.findById(id: String) = find { it.id == id }
 }
