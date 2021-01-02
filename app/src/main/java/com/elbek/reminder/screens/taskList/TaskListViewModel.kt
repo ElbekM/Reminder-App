@@ -10,8 +10,8 @@ import com.elbek.reminder.common.core.commands.Text
 import com.elbek.reminder.common.core.commands.Visible
 import com.elbek.reminder.interactors.CustomTaskListInteractor
 import com.elbek.reminder.interactors.DefaultTaskListInteractor
-import com.elbek.reminder.models.Task
 import com.elbek.reminder.models.TaskList
+import com.elbek.reminder.screens.task.TaskLaunchArgs
 import com.elbek.reminder.screens.taskList.adapter.TaskClickType
 import com.elbek.reminder.screens.taskList.adapter.TaskListItem
 import io.reactivex.Observable
@@ -33,6 +33,7 @@ class TaskListViewModel @ViewModelInject constructor(
     val taskListItems = DataList<TaskListItem>()
 
     val setTaskListNameFocusCommand = Command()
+    val openTaskScreenCommand = TCommand<TaskLaunchArgs>()
     val openNewTaskScreenCommand = TCommand<String>()
     val openSettingsBottomSheetCommand = TCommand<String>()
 
@@ -71,7 +72,14 @@ class TaskListViewModel @ViewModelInject constructor(
 
     fun onTaskClicked(position: Int, type: TaskClickType) = when (type) {
         TaskClickType.TASK -> {
-            //TODO: open task screen
+            taskList?.let {
+                openTaskScreenCommand.call(
+                    TaskLaunchArgs(
+                        taskListId = it.id,
+                        taskId = it.tasks[position].id
+                    )
+                )
+            }
         }
         TaskClickType.CHECKBOX -> {
             //TODO: implement checkbox logic

@@ -25,18 +25,19 @@
             tools:ignore="ContentDescription" />
 
         <TextView
+            android:id="@+id/toolbarTitleTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Lists"
             android:textSize="24sp"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/settingsImageView"
+            app:layout_constraintEnd_toStartOf="@+id/deleteImageView"
             app:layout_constraintStart_toEndOf="@+id/backImageView"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="My Day"/>
 
         <ImageView
-            android:id="@+id/settingsImageView"
+            android:id="@+id/deleteImageView"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_delete"
@@ -74,14 +75,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:hint="Untitled list"
+            android:hint="Untitled task"
             android:textSize="30sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/importantImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="Autofill"
-            tools:text="My Day" />
+            tools:text="Create App" />
 
         <ImageView
             android:id="@+id/importantImageView"
@@ -159,6 +160,7 @@
         app:layout_constraintTop_toBottomOf="@+id/subTaskBorderView">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/myDayLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -197,6 +199,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/dateLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -235,6 +238,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fileLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 

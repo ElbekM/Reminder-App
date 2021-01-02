@@ -1,4 +1,4 @@
-package com.elbek.reminder.screens.taskList.task
+package com.elbek.reminder.screens.taskList.newTask
 
 import android.app.Application
 import androidx.hilt.lifecycle.ViewModelInject

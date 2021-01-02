@@ -15,17 +15,19 @@ class TaskEditText @JvmOverloads constructor(
 
     private var listener: KeyListener? = null
 
+    var isTouchable: Boolean = true
+
     init {
         background = null
         inputType = EditorInfo.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         isFocusable = false
-        isFocusableInTouchMode = false
+        isFocusableInTouchMode = isTouchable
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             isFocusable = false
-            isFocusableInTouchMode = false
+            isFocusableInTouchMode = isTouchable
 
             listener?.onComplete()
         }
@@ -33,11 +35,12 @@ class TaskEditText @JvmOverloads constructor(
     }
 
     fun initKeyListener() {
+        isFocusableInTouchMode = isTouchable
         setOnKeyListener { v, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
                 hideKeyboard()
                 isFocusable = false
-                isFocusableInTouchMode = false
+                isFocusableInTouchMode = isTouchable
 
                 listener?.onComplete()
                 return@setOnKeyListener true

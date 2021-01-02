@@ -1,5 +1,6 @@
 package com.elbek.reminder.interactors
 
+import com.elbek.reminder.common.extensions.update
 import com.elbek.reminder.database.TaskListDao
 import com.elbek.reminder.database.entities.TaskEntity
 import com.elbek.reminder.database.entities.TaskListEntity
@@ -15,6 +16,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.properties.Delegates
 
+//TODO: Code refactoring
 @Singleton
 class DefaultTaskListInteractor @Inject constructor(
     private val database: TaskListDao
@@ -25,8 +27,10 @@ class DefaultTaskListInteractor @Inject constructor(
 
     val databaseUpdated = PublishSubject.create<List<TaskList>>()
 
-    fun getTaskListById(id: String): TaskList? =
-        taskLists.firstOrNull { it.id == id }
+    fun getTaskListById(id: String): TaskList? = taskLists.findById(id)
+
+    fun getTaskById(taskListId: String, taskId: String): Task? =
+        taskLists.findById(taskListId)?.tasks?.firstOrNull { it.id == taskId }
 
     fun getTaskLists(): Completable =
         database.getAllTaskLists()
@@ -56,6 +60,28 @@ class DefaultTaskListInteractor @Inject constructor(
             .observeOn(Schedulers.io())
             .map { taskLists.findById(id)?.tasks?.run { map { TaskEntity(it) } } }
             .flatMapCompletable { database.updateTasks(id, it) }
+
+    fun updateTask(taskListId: String, task: Task): Completable =
+        Single.fromCallable {
+            taskLists = taskLists.apply {
+                findById(taskListId)?.tasks?.update(task) { it.id == task.id }
+            }
+        }
+            .observeOn(Schedulers.io())
+            .map { taskLists.findById(taskListId)?.tasks?.run { map { TaskEntity(it) } } }
+            .flatMapCompletable { database.updateTasks(taskListId, it) }
+
+    fun deleteTask(taskListId: String, taskId: String): Completable =
+        Single.fromCallable {
+            taskLists = taskLists.apply {
+                findById(taskListId)?.tasks?.removeAll { it.id == taskId }
+            }
+        }
+            .observeOn(Schedulers.io())
+            .map {
+                taskLists.findById(taskListId)?.tasks?.run { map { TaskEntity(it) } }
+            }
+            .flatMapCompletable { database.updateTasks(taskListId, it) }
 
     fun List<TaskList>.findById(id: String) = find { it.id == id }
 }

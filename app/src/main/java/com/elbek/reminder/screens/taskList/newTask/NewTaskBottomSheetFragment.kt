@@ -1,4 +1,4 @@
-package com.elbek.reminder.screens.taskList.task
+package com.elbek.reminder.screens.taskList.newTask
 
 import android.os.Bundle
 import android.view.LayoutInflater

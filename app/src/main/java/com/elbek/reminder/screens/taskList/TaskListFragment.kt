@@ -12,10 +12,12 @@ import com.elbek.reminder.common.extensions.bindDataToAction
 import com.elbek.reminder.common.extensions.bindText
 import com.elbek.reminder.common.extensions.bindVisible
 import com.elbek.reminder.common.extensions.show
+import com.elbek.reminder.common.extensions.showAllowingStateLoss
 import com.elbek.reminder.databinding.FragmentTasklistBinding
+import com.elbek.reminder.screens.task.TaskFragment
 import com.elbek.reminder.screens.taskList.adapter.TaskListAdapter
 import com.elbek.reminder.screens.taskList.settings.TaskListSettingsBottomSheetFragment
-import com.elbek.reminder.screens.taskList.task.NewTaskBottomSheetFragment
+import com.elbek.reminder.screens.taskList.newTask.NewTaskBottomSheetFragment
 import com.elbek.reminder.views.TaskEditText
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -56,6 +58,11 @@ class TaskListFragment : BaseFragment<TaskListViewModel>(), TaskListSettingsBott
                     .newInstance(it)
                     .show(childFragmentManager)
             }
+            bindCommand(viewModel.openTaskScreenCommand) {
+                TaskFragment
+                    .newInstance(it)
+                    .showAllowingStateLoss(childFragmentManager)
+            }
             bindCommand(viewModel.openNewTaskScreenCommand) {
                 NewTaskBottomSheetFragment
                     .newInstance(it)
@@ -90,6 +97,7 @@ class TaskListFragment : BaseFragment<TaskListViewModel>(), TaskListSettingsBott
         addNewTaskCardView.setOnClickListener { viewModel.onAddNewTaskClicked() }
 
         taskListNameEditText.apply {
+            isTouchable = false
             initKeyListener()
             setOnKeyListener(object : TaskEditText.KeyListener {
                 override fun onComplete() {

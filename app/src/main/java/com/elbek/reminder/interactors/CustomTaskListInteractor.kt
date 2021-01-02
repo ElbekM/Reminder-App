@@ -1,5 +1,6 @@
 package com.elbek.reminder.interactors
 
+import com.elbek.reminder.common.extensions.update
 import com.elbek.reminder.database.TaskListDao
 import com.elbek.reminder.database.entities.TaskEntity
 import com.elbek.reminder.database.entities.TaskListEntity
@@ -25,8 +26,10 @@ class CustomTaskListInteractor @Inject constructor(
 
     val databaseUpdated = PublishSubject.create<List<TaskList>>()
 
-    fun getTaskListById(id: String): TaskList? =
-        taskLists.firstOrNull { it.id == id }
+    fun getTaskListById(id: String): TaskList? = taskLists.findById(id)
+
+    fun getTaskById(taskListId: String, taskId: String): Task? =
+        taskLists.findById(taskListId)?.tasks?.firstOrNull { it.id == taskId }
 
     fun getTaskLists(): Completable =
         database.getAllTaskLists()
@@ -59,14 +62,6 @@ class CustomTaskListInteractor @Inject constructor(
         }
             .flatMapCompletable { database.deleteTaskList(id) }
 
-    fun insertTask(id: String, task: Task): Completable =
-        Single.fromCallable {
-            taskLists = taskLists.apply { findById(id)?.tasks?.add(task) }
-        }
-            .observeOn(Schedulers.io()) //TODO: check threads
-            .map { taskLists.findById(id)?.tasks?.run { map { TaskEntity(it) } } }
-            .flatMapCompletable { database.updateTasks(id, it) }
-
     fun updateTasks(id: String, tasks: List<Task>): Completable =
         Single.fromCallable {
             taskLists = taskLists.apply { findById(id)?.tasks = tasks.toMutableList() }
@@ -76,6 +71,36 @@ class CustomTaskListInteractor @Inject constructor(
             .flatMapCompletable {
                 database.updateTasks(id, it)
             }
+
+    fun insertTask(id: String, task: Task): Completable =
+        Single.fromCallable {
+            taskLists = taskLists.apply { findById(id)?.tasks?.add(task) }
+        }
+            .observeOn(Schedulers.io()) //TODO: check threads
+            .map { taskLists.findById(id)?.tasks?.run { map { TaskEntity(it) } } }
+            .flatMapCompletable { database.updateTasks(id, it) }
+
+    fun updateTask(taskListId: String, task: Task): Completable =
+        Single.fromCallable {
+            taskLists = taskLists.apply {
+                findById(taskListId)?.tasks?.update(task) { it.id == task.id }
+            }
+        }
+            .observeOn(Schedulers.io())
+            .map { taskLists.findById(taskListId)?.tasks?.run { map { TaskEntity(it) } } }
+            .flatMapCompletable { database.updateTasks(taskListId, it) }
+
+    fun deleteTask(taskListId: String, taskId: String): Completable =
+        Single.fromCallable {
+            taskLists = taskLists.apply {
+                findById(taskListId)?.tasks?.removeAll { it.id == taskId }
+            }
+        }
+            .observeOn(Schedulers.io())
+            .map {
+                taskLists.findById(taskListId)?.tasks?.run { map { TaskEntity(it) } }
+            }
+            .flatMapCompletable { database.updateTasks(taskListId, it) }
 
     fun List<TaskList>.findById(id: String) = find { it.id == id }
 }
