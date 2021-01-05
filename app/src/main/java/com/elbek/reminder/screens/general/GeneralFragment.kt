@@ -41,9 +41,9 @@ class GeneralFragment : BaseFragment<GeneralViewModel>() {
         super.bindViewModel()
 
         with(binding) {
-            bindCommand(viewModel.openTaskListScreenCommand) { id ->
+            bindCommand(viewModel.openTaskListScreenCommand) {
                 TaskListFragment
-                    .newInstance(id)
+                    .newInstance(it)
                     .showAllowingStateLoss(childFragmentManager)
             }
             bindCommand(viewModel.createNewTaskListCommand) {

@@ -5,10 +5,10 @@ import androidx.hilt.lifecycle.ViewModelInject
 import com.elbek.reminder.common.core.BaseViewModel
 import com.elbek.reminder.common.core.commands.Command
 import com.elbek.reminder.common.core.commands.Enabled
-import com.elbek.reminder.interactors.CustomTaskListInteractor
+import com.elbek.reminder.interactors.TaskListInteractor
 
 class TaskListSettingsViewModel @ViewModelInject constructor(
-    private val taskListInteractor: CustomTaskListInteractor,
+    private val taskListInteractor: TaskListInteractor,
     application: Application
 ) : BaseViewModel(application) {
 

@@ -6,29 +6,31 @@ import com.elbek.reminder.common.core.BaseViewModel
 import com.elbek.reminder.common.core.commands.Command
 import com.elbek.reminder.common.core.commands.DataList
 import com.elbek.reminder.common.core.commands.TCommand
-import com.elbek.reminder.interactors.CustomTaskListInteractor
 import com.elbek.reminder.interactors.DefaultTaskListInteractor
+import com.elbek.reminder.interactors.TaskListInteractor
 import com.elbek.reminder.models.TaskList
 import com.elbek.reminder.screens.general.adapters.TaskCardItem
 import com.elbek.reminder.screens.general.adapters.TaskCardType
 import com.elbek.reminder.screens.general.adapters.TaskTypeItem
+import com.elbek.reminder.screens.taskList.TaskListLaunchArgs
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 class GeneralViewModel @ViewModelInject constructor(
-    private val taskListInteractor: CustomTaskListInteractor,
+    private val taskListInteractor: TaskListInteractor,
     private val defaultTaskListInteractor: DefaultTaskListInteractor,
     application: Application
 ) : BaseViewModel(application) {
 
     private var taskLists: MutableList<TaskList> = mutableListOf()
-    private var defaultTaskLists: MutableList<TaskList> = mutableListOf()
+    private var defaultTaskList: TaskList? = null
 
     val taskTypes = DataList<TaskTypeItem>()
     val taskCards = DataList<TaskCardItem>()
+
     val createNewTaskListCommand = Command()
-    val openTaskListScreenCommand = TCommand<String>()
+    val openTaskListScreenCommand = TCommand<TaskListLaunchArgs>()
 
     fun init() {
         taskListInteractor.databaseUpdated
@@ -36,6 +38,8 @@ class GeneralViewModel @ViewModelInject constructor(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 taskLists = it.toMutableList()
+
+                setupTaskTypes()
                 setupTaskCards()
             }, {})
             .addToSubscriptions()
@@ -44,7 +48,7 @@ class GeneralViewModel @ViewModelInject constructor(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                defaultTaskLists = it.toMutableList()
+                defaultTaskList = it
                 setupTaskTypes()
 
                 //openTaskListScreenCommand.call(defaultTaskLists[0].id)
@@ -56,21 +60,24 @@ class GeneralViewModel @ViewModelInject constructor(
 
     fun loadData() {
         taskListInteractor.getTaskLists()
-            .andThen(defaultTaskListInteractor.getTaskLists())
+            .andThen(defaultTaskListInteractor.getTaskList())
             .subscribeOnIoObserveOnMain()
             .addToSubscriptions()
     }
 
-    fun onTaskTypeClicked(position: Int) {
-        val taskListId = defaultTaskLists[position].id
-        openTaskListScreenCommand.call(taskListId)
+    fun onTaskTypeClicked(taskType: TaskType) {
+        openTaskListScreenCommand.call(
+            TaskListLaunchArgs(taskType = taskType)
+        )
     }
 
     fun onTaskCardClicked(cardType: TaskCardType, position: Int) {
         when (cardType) {
             TaskCardType.TASK_LIST -> {
                 val taskListId = taskLists[position].id
-                openTaskListScreenCommand.call(taskListId)
+                openTaskListScreenCommand.call(
+                    TaskListLaunchArgs(taskListId = taskListId)
+                )
             }
             TaskCardType.ADD -> {
                 createNewTaskListCommand.call()
@@ -79,12 +86,14 @@ class GeneralViewModel @ViewModelInject constructor(
     }
 
     private fun setupTaskTypes() {
-        Observable.fromIterable(defaultTaskLists)
+        //TODO: refactor enums
+        Observable.fromIterable(TaskType.values().toList())
             .map {
                 TaskTypeItem(
                     icon = it.icon,
-                    title = it.name,
-                    taskCount = it.tasks.size
+                    title = it.title,
+                    taskCount = 0,
+                    type = it
                 )
             }.toList()
             .subscribeOn(Schedulers.io())
@@ -96,7 +105,7 @@ class GeneralViewModel @ViewModelInject constructor(
     }
 
     private fun setupTaskCards() {
-        //TODO: get progress, check publish subjects
+        //TODO: get progress
         Observable.fromIterable(taskLists)
             .map {
                 TaskCardItem(

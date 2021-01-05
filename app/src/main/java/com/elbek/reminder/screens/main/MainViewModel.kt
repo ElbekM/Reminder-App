@@ -8,8 +8,6 @@ import com.elbek.reminder.common.core.commands.TCommand
 import com.elbek.reminder.common.utils.Constants
 import com.elbek.reminder.interactors.DefaultTaskListInteractor
 import com.elbek.reminder.models.TaskList
-import com.elbek.reminder.screens.general.TaskType
-import io.reactivex.Observable
 import io.reactivex.Single
 
 class MainViewModel @ViewModelInject constructor(
@@ -39,18 +37,11 @@ class MainViewModel @ViewModelInject constructor(
     }
 
     private fun initDefaultTaskLists() {
-        Single.just(TaskType.values())
-            .map { it.toList() }
-            .flatMap {
-                Observable.fromIterable(it)
-                    .map { taskType ->
-                        TaskList(
-                            icon = taskType.icon,
-                            name = taskType.title
-                        )
-                    }.toList()
+        Single.just("Tasks")
+            .map {
+                TaskList(name = it)
             }
-            .flatMapCompletable { defaultTaskListInteractor.insertTaskLists(it) }
+            .flatMapCompletable { defaultTaskListInteractor.insertTaskList(it) }
             .subscribeOnIoObserveOnMain()
             .addToSubscriptions()
     }

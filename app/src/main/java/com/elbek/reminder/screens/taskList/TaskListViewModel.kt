@@ -8,9 +8,10 @@ import com.elbek.reminder.common.core.commands.DataList
 import com.elbek.reminder.common.core.commands.TCommand
 import com.elbek.reminder.common.core.commands.Text
 import com.elbek.reminder.common.core.commands.Visible
-import com.elbek.reminder.interactors.CustomTaskListInteractor
 import com.elbek.reminder.interactors.DefaultTaskListInteractor
+import com.elbek.reminder.interactors.TaskListInteractor
 import com.elbek.reminder.models.TaskList
+import com.elbek.reminder.screens.general.TaskType
 import com.elbek.reminder.screens.task.TaskLaunchArgs
 import com.elbek.reminder.screens.taskList.adapter.TaskClickType
 import com.elbek.reminder.screens.taskList.adapter.TaskListItem
@@ -19,12 +20,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 class TaskListViewModel @ViewModelInject constructor(
-    private val taskListInteractor: CustomTaskListInteractor,
+    private val taskListInteractor: TaskListInteractor,
     private val defaultTaskListInteractor: DefaultTaskListInteractor,
     application: Application
 ) : BaseViewModel(application) {
 
     private var taskList: TaskList? = null
+    private var taskListType: TaskType? = null
 
     val taskListNameText = Text()
     val dateTimeText = Text()
@@ -37,21 +39,31 @@ class TaskListViewModel @ViewModelInject constructor(
     val openNewTaskScreenCommand = TCommand<String>()
     val openSettingsBottomSheetCommand = TCommand<String>()
 
-    fun init(taskListId: String?) {
-        taskListId?.let {
-            taskList = taskListInteractor.getTaskListById(it) ?: run {
-                defaultTaskListInteractor.getTaskListById(it)
+    fun init(args: TaskListLaunchArgs?) {
+        if (args?.taskType != null) {
+            taskListType = args.taskType
+            when (taskListType) {
+                //TODO: get data from all taskLists
+                TaskType.TASKS -> {
+                    defaultTaskListInteractor.getTaskList()
+                        .subscribeOnIoObserveOnMain()
+                        .addToSubscriptions()
+                }
             }
-            updateView()
-        } ?: run {
-            setFocusToTitle()
+        } else {
+            args?.taskListId?.let {
+                taskList = taskListInteractor.getTaskListById(it)
+                updateView()
+            } ?: run {
+                setFocusToTitle()
+            }
         }
 
         taskListInteractor.databaseUpdated
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ taskLists ->
-                taskList = taskListId?.let { id ->
+                taskList = args?.taskListId?.let { id ->
                     taskLists.firstOrNull { it.id == id }
                 } ?: taskLists.last()
                 updateView()
@@ -61,10 +73,8 @@ class TaskListViewModel @ViewModelInject constructor(
         defaultTaskListInteractor.databaseUpdated
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ taskLists ->
-                taskList = taskListId?.let { id ->
-                    taskLists.firstOrNull { it.id == id }
-                } ?: taskLists.last()
+            .subscribe({
+                taskList = it
                 updateView()
             }, {})
             .addToSubscriptions()

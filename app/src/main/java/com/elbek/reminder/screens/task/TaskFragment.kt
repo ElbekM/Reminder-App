@@ -54,7 +54,6 @@ class TaskFragment : BaseFragment<TaskViewModel>() {
         //dateLayout.setOnClickListener { viewModel }
         //fileLayout.setOnClickListener { viewModel }
 
-
         completeActionButton.setOnClickListener {
             viewModel.onCompleteClicked(taskNameEditText.text.toString(), taskNotesEditText.text.toString())
         }

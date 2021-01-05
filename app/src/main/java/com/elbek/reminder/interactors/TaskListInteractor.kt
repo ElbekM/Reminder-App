@@ -1,6 +1,7 @@
 package com.elbek.reminder.interactors
 
 import com.elbek.reminder.common.extensions.update
+import com.elbek.reminder.common.utils.Utils.findById
 import com.elbek.reminder.database.TaskListDao
 import com.elbek.reminder.database.entities.TaskEntity
 import com.elbek.reminder.database.entities.TaskListEntity
@@ -17,7 +18,7 @@ import javax.inject.Singleton
 import kotlin.properties.Delegates
 
 @Singleton
-class CustomTaskListInteractor @Inject constructor(
+class TaskListInteractor @Inject constructor(
     private val database: TaskListDao
 ) {
     private var taskLists by Delegates.observable(mutableListOf<TaskList>()) { _, _, value ->
@@ -101,6 +102,4 @@ class CustomTaskListInteractor @Inject constructor(
                 taskLists.findById(taskListId)?.tasks?.run { map { TaskEntity(it) } }
             }
             .flatMapCompletable { database.updateTasks(taskListId, it) }
-
-    fun List<TaskList>.findById(id: String) = find { it.id == id }
 }

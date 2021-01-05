@@ -4,13 +4,13 @@ import android.app.Application
 import androidx.hilt.lifecycle.ViewModelInject
 import com.elbek.reminder.common.core.BaseViewModel
 import com.elbek.reminder.common.core.commands.Text
-import com.elbek.reminder.interactors.CustomTaskListInteractor
 import com.elbek.reminder.interactors.DefaultTaskListInteractor
+import com.elbek.reminder.interactors.TaskListInteractor
 import com.elbek.reminder.models.Task
 import java.lang.NullPointerException
 
 class TaskViewModel @ViewModelInject constructor(
-    private val taskListInteractor: CustomTaskListInteractor,
+    private val taskListInteractor: TaskListInteractor,
     private val defaultTaskListInteractor: DefaultTaskListInteractor,
     application: Application
 ) : BaseViewModel(application) {
@@ -31,7 +31,7 @@ class TaskViewModel @ViewModelInject constructor(
 
         task = taskListInteractor.getTaskById(taskListId, taskId) ?: run {
             isCustomTaskList = false
-            defaultTaskListInteractor.getTaskById(taskListId, taskId)
+            defaultTaskListInteractor.getTaskById(taskId)
         } ?: throw NullPointerException()
 
         updateView()

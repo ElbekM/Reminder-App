@@ -41,7 +41,7 @@ class TaskListFragment : BaseFragment<TaskListViewModel>(), TaskListSettingsBott
         initViews()
         bindViewModel()
         viewModel.init(
-            requireArguments().getString(taskListIdKey)
+            requireArguments().getSerializable(taskListArgsKey) as? TaskListLaunchArgs
         )
     }
 
@@ -108,11 +108,11 @@ class TaskListFragment : BaseFragment<TaskListViewModel>(), TaskListSettingsBott
     }
 
     companion object {
-        private val taskListIdKey: String = ::taskListIdKey.name
+        private val taskListArgsKey: String = ::taskListArgsKey.name
 
-        fun newInstance(taskListId: String? = null): TaskListFragment =
+        fun newInstance(args: TaskListLaunchArgs? = null): TaskListFragment =
             TaskListFragment().apply {
-                arguments = bundleOf(taskListIdKey to taskListId)
+                arguments = bundleOf(taskListArgsKey to args)
             }
     }
 }

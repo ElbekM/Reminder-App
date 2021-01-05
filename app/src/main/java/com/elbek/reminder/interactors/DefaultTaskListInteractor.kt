@@ -16,23 +16,20 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.properties.Delegates
 
-//TODO: Code refactoring
 @Singleton
 class DefaultTaskListInteractor @Inject constructor(
     private val database: TaskListDao
 ) {
-    private var taskLists by Delegates.observable(mutableListOf<TaskList>()) { _, _, value ->
+    private var taskList by Delegates.observable(TaskList(name = null)) { _, _, value ->
         databaseUpdated.onNext(value)
     }
 
-    val databaseUpdated = PublishSubject.create<List<TaskList>>()
+    val databaseUpdated = PublishSubject.create<TaskList>()
 
-    fun getTaskListById(id: String): TaskList? = taskLists.findById(id)
+    fun getTaskById(taskId: String) = taskList.tasks.firstOrNull { it.id == taskId }
 
-    fun getTaskById(taskListId: String, taskId: String): Task? =
-        taskLists.findById(taskListId)?.tasks?.firstOrNull { it.id == taskId }
-
-    fun getTaskLists(): Completable =
+    //TODO: refactor filter
+    fun getTaskList(): Completable =
         database.getAllTaskLists()
             .map { taskLists -> taskLists.map { it.toModel() } }
             .flatMap { lists ->
@@ -40,48 +37,46 @@ class DefaultTaskListInteractor @Inject constructor(
                     TaskType.values().map { it.title }.contains(taskList.name)
                 }.toList()
             }
-            .doOnSuccess { taskLists = it }
+            .doOnSuccess { taskList = it.first() }
             .ignoreElement()
 
-    fun insertTaskLists(list: List<TaskList>): Completable =
-        Single.fromCallable {
-            list.run { map { TaskListEntity(it) } }
-        }
+    fun insertTaskList(taskList: TaskList): Completable =
+        Single.fromCallable { TaskListEntity(taskList) }
             .observeOn(Schedulers.io())
-            .flatMapCompletable {
-                taskLists = taskLists.apply { addAll(list) }
-                database.insert(it)
+            .flatMapCompletable { entity ->
+                this.taskList = taskList
+                database.insert(entity)
             }
 
     fun insertTask(id: String, task: Task): Completable =
         Single.fromCallable {
-            taskLists = taskLists.apply { findById(id)?.tasks?.add(task) }
+            taskList = taskList.apply { tasks.add(task) }
         }
-            .observeOn(Schedulers.io())
-            .map { taskLists.findById(id)?.tasks?.run { map { TaskEntity(it) } } }
+            .observeOn(Schedulers.io()) //TODO: check threads
+            .map { taskList.tasks.run { map { TaskEntity(it) } } }
             .flatMapCompletable { database.updateTasks(id, it) }
 
     fun updateTask(taskListId: String, task: Task): Completable =
         Single.fromCallable {
-            taskLists = taskLists.apply {
-                findById(taskListId)?.tasks?.update(task) { it.id == task.id }
+            taskList = taskList.apply {
+                tasks.update(task) { it.id == task.id }
             }
         }
             .observeOn(Schedulers.io())
-            .map { taskLists.findById(taskListId)?.tasks?.run { map { TaskEntity(it) } } }
+            .map { taskList.tasks.run { map { TaskEntity(it) } } }
             .flatMapCompletable { database.updateTasks(taskListId, it) }
 
     fun deleteTask(taskListId: String, taskId: String): Completable =
         Single.fromCallable {
-            taskLists = taskLists.apply {
-                findById(taskListId)?.tasks?.removeAll { it.id == taskId }
+            taskList = taskList.apply {
+                tasks.removeAll { it.id == taskId }
             }
         }
             .observeOn(Schedulers.io())
             .map {
-                taskLists.findById(taskListId)?.tasks?.run { map { TaskEntity(it) } }
+                taskList.tasks.run { map { TaskEntity(it) } }
             }
             .flatMapCompletable { database.updateTasks(taskListId, it) }
 
-    fun List<TaskList>.findById(id: String) = find { it.id == id }
+    fun isDefaultTaskList(id: String): Boolean = id == taskList.id
 }
