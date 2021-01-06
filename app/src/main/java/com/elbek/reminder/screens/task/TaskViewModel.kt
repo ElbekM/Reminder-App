@@ -27,6 +27,7 @@ class TaskViewModel @ViewModelInject constructor(
     val taskNotesText = Text()
 
     val isImportant = Data(false)
+    val isInMyDay = Data(false)
 
     fun init(launchArgs: TaskLaunchArgs) {
         taskListId = launchArgs.taskListId ?: defaultTaskListInteractor.getTaskListId()
@@ -49,15 +50,21 @@ class TaskViewModel @ViewModelInject constructor(
         task.isImportant = !task.isImportant
         isImportant.value = task.isImportant
 
-        if (isCustomTaskList) {
-            taskListInteractor.updateTask(taskListId, task)
-                .subscribeOnIoObserveOnMain()
-                .addToSubscriptions()
-        } else {
-            defaultTaskListInteractor.updateTask(taskListId, task)
-                .subscribeOnIoObserveOnMain()
-                .addToSubscriptions()
-        }
+        updateTask()
+    }
+
+    fun onAddToMyDayClicked() {
+        task.isInMyDate = !task.isInMyDate
+        isInMyDay.value = task.isInMyDate
+
+        updateTask()
+    }
+
+    fun onCompleteClicked(name: String, notes: String) {
+        task.name = name
+        task.description = notes
+
+        updateTask(closeCommand)
     }
 
     fun onDeleteTaskClicked() {
@@ -72,17 +79,14 @@ class TaskViewModel @ViewModelInject constructor(
         }
     }
 
-    fun onCompleteClicked(name: String, notes: String) {
-        task.name = name
-        task.description = notes
-
+    private fun updateTask(block: () -> Unit = {}) {
         if (isCustomTaskList) {
             taskListInteractor.updateTask(taskListId, task)
-                .subscribeOnIoObserveOnMain { closeCommand.call() }
+                .subscribeOnIoObserveOnMain { block() }
                 .addToSubscriptions()
         } else {
             defaultTaskListInteractor.updateTask(taskListId, task)
-                .subscribeOnIoObserveOnMain { closeCommand.call() }
+                .subscribeOnIoObserveOnMain { block() }
                 .addToSubscriptions()
         }
     }
@@ -93,5 +97,6 @@ class TaskViewModel @ViewModelInject constructor(
         taskNameText.value = task.name
         taskNotesText.value = task.description ?: ""
         isImportant.value = task.isImportant
+        isInMyDay.value = task.isInMyDate
     }
 }

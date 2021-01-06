@@ -48,8 +48,14 @@ class TaskFragment : BaseFragment<TaskViewModel>() {
 
             bindDataToAction(viewModel.isImportant) { important ->
                 importantImageView.apply {
-                    if (important) setTint(R.color.colorPrimaryDark)
-                    else setTint(R.color.colorPrimary)
+                    if (important) setTint(R.color.colorPrimary)
+                    else setTint(R.color.colorPrimaryDark)
+                }
+            }
+            bindDataToAction(viewModel.isInMyDay) { inMyDay ->
+                addToMyDayImageView.apply {
+                    if (inMyDay) setTint(R.color.colorPrimary)
+                    else setTint(R.color.colorPrimaryDark)
                 }
             }
         }
@@ -60,7 +66,7 @@ class TaskFragment : BaseFragment<TaskViewModel>() {
         deleteImageView.setOnClickListener { viewModel.onDeleteTaskClicked() }
         importantImageView.setOnClickListener { viewModel.onImportantClicked() }
         addSubTaskLayout.setOnClickListener { viewModel.onAddNewSubTaskClicked() }
-        //myDayLayout.setOnClickListener { viewModel }
+        myDayLayout.setOnClickListener { viewModel.onAddToMyDayClicked() }
         //dateLayout.setOnClickListener { viewModel }
         //fileLayout.setOnClickListener { viewModel }
 

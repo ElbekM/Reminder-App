@@ -51,12 +51,9 @@ class TaskListViewModel @ViewModelInject constructor(
                         .subscribeOnIoObserveOnMain()
                         .addToSubscriptions()
                 }
-                TaskType.IMPORTANT -> {
+                else -> {
                     subscribeToTasksUpdate()
                     getAllTasks()
-                }
-                else -> {
-                    // no op
                 }
             }
         } else {
