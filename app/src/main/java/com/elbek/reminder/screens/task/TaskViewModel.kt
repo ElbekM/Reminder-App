@@ -3,6 +3,7 @@ package com.elbek.reminder.screens.task
 import android.app.Application
 import androidx.hilt.lifecycle.ViewModelInject
 import com.elbek.reminder.common.core.BaseViewModel
+import com.elbek.reminder.common.core.commands.Data
 import com.elbek.reminder.common.core.commands.Text
 import com.elbek.reminder.interactors.DefaultTaskListInteractor
 import com.elbek.reminder.interactors.TaskListInteractor
@@ -25,8 +26,10 @@ class TaskViewModel @ViewModelInject constructor(
     val taskNameText = Text()
     val taskNotesText = Text()
 
+    val isImportant = Data(false)
+
     fun init(launchArgs: TaskLaunchArgs) {
-        taskListId = launchArgs.taskListId
+        taskListId = launchArgs.taskListId ?: defaultTaskListInteractor.getTaskListId()
         taskId = launchArgs.taskId
 
         task = taskListInteractor.getTaskById(taskListId, taskId) ?: run {
@@ -39,7 +42,22 @@ class TaskViewModel @ViewModelInject constructor(
     }
 
     fun onAddNewSubTaskClicked() {
+        //TODO: add new subtasks
+    }
 
+    fun onImportantClicked() {
+        task.isImportant = !task.isImportant
+        isImportant.value = task.isImportant
+
+        if (isCustomTaskList) {
+            taskListInteractor.updateTask(taskListId, task)
+                .subscribeOnIoObserveOnMain()
+                .addToSubscriptions()
+        } else {
+            defaultTaskListInteractor.updateTask(taskListId, task)
+                .subscribeOnIoObserveOnMain()
+                .addToSubscriptions()
+        }
     }
 
     fun onDeleteTaskClicked() {
@@ -74,5 +92,6 @@ class TaskViewModel @ViewModelInject constructor(
         toolbarTitleText.value = "List"
         taskNameText.value = task.name
         taskNotesText.value = task.description ?: ""
+        isImportant.value = task.isImportant
     }
 }

@@ -6,8 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
+import com.elbek.reminder.R
 import com.elbek.reminder.common.core.BaseFragment
+import com.elbek.reminder.common.extensions.bindDataToAction
 import com.elbek.reminder.common.extensions.bindText
+import com.elbek.reminder.common.extensions.setTint
 import com.elbek.reminder.databinding.FragmentTaskBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -42,13 +45,20 @@ class TaskFragment : BaseFragment<TaskViewModel>() {
             bindText(viewModel.toolbarTitleText, toolbarTitleTextView)
             bindText(viewModel.taskNameText, taskNameEditText)
             bindText(viewModel.taskNotesText, taskNotesEditText)
+
+            bindDataToAction(viewModel.isImportant) { important ->
+                importantImageView.apply {
+                    if (important) setTint(R.color.colorPrimaryDark)
+                    else setTint(R.color.colorPrimary)
+                }
+            }
         }
     }
 
     private fun initViews() = with(binding) {
         backImageView.setOnClickListener { onBackPressed() }
         deleteImageView.setOnClickListener { viewModel.onDeleteTaskClicked() }
-        //importantImageView.setOnClickListener { viewModel }
+        importantImageView.setOnClickListener { viewModel.onImportantClicked() }
         addSubTaskLayout.setOnClickListener { viewModel.onAddNewSubTaskClicked() }
         //myDayLayout.setOnClickListener { viewModel }
         //dateLayout.setOnClickListener { viewModel }

@@ -3,6 +3,8 @@ package com.elbek.reminder.common.core
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.ColorRes
@@ -78,12 +80,18 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
         exception.printStackTrace()
     }
 
+    protected fun runWithDelay(block: () -> Unit, delay: Long = 500) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            block()
+        }, delay)
+    }
+
     protected fun Disposable.addToSubscriptions() { subscriptions.add(this) }
 
-    protected fun <T> Single<T>.subscribeOnIoObserveOnMain(block: () -> Unit = {}) =
+    protected fun <T> Single<T>.subscribeOnIoObserveOnMain(block: (T) -> Unit = {}) =
         this.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ block() }, { logError(it) })
+            .subscribe({ block(it) }, { logError(it) })
 
     protected fun Completable.subscribeOnIoObserveOnMain(block: () -> Unit = {}) =
         this.subscribeOn(Schedulers.io())

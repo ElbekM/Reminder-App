@@ -18,15 +18,19 @@ import kotlin.properties.Delegates
 
 @Singleton
 class DefaultTaskListInteractor @Inject constructor(
+    private val taskListInteractor: TaskListInteractor,
     private val database: TaskListDao
 ) {
     private var taskList by Delegates.observable(TaskList(name = null)) { _, _, value ->
         databaseUpdated.onNext(value)
+        taskListInteractor.allDataBaseUpdated.onNext(Unit)
     }
 
     val databaseUpdated = PublishSubject.create<TaskList>()
 
     fun getTaskById(taskId: String) = taskList.tasks.firstOrNull { it.id == taskId }
+
+    fun getTaskListId(): String = taskList.id
 
     //TODO: refactor filter
     fun getTaskList(): Completable =

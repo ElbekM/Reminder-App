@@ -34,7 +34,7 @@ class TaskListSettingsBottomSheetFragment : BaseBottomSheetFragment<TaskListSett
         initViews()
         bindViewModel()
         viewModel.init(
-            requireArguments().getString(taskListIdKey, "")
+            requireArguments().getString(taskListIdKey)
         )
     }
 
@@ -70,7 +70,7 @@ class TaskListSettingsBottomSheetFragment : BaseBottomSheetFragment<TaskListSett
     companion object {
         private val taskListIdKey: String = ::taskListIdKey.name
 
-        fun newInstance(taskListId: String): TaskListSettingsBottomSheetFragment =
+        fun newInstance(taskListId: String? = null): TaskListSettingsBottomSheetFragment =
             TaskListSettingsBottomSheetFragment().apply {
                 arguments = bundleOf(taskListIdKey to taskListId)
             }

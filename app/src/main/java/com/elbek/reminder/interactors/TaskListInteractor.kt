@@ -23,14 +23,47 @@ class TaskListInteractor @Inject constructor(
 ) {
     private var taskLists by Delegates.observable(mutableListOf<TaskList>()) { _, _, value ->
         databaseUpdated.onNext(value)
+        allDataBaseUpdated.onNext(Unit)
     }
 
     val databaseUpdated = PublishSubject.create<List<TaskList>>()
 
+    val allDataBaseUpdated = PublishSubject.create<Unit>()
+
     fun getTaskListById(id: String): TaskList? = taskLists.findById(id)
+
+    fun getTaskListIdByTask(taskId: String): String? {
+        taskLists.forEach { taskList ->
+            taskList.takeIf {
+                it.tasks.find { task -> task.id == taskId }?.run { true } ?: false
+            }?.let { return it.id }
+        }
+        return null
+    }
 
     fun getTaskById(taskListId: String, taskId: String): Task? =
         taskLists.findById(taskListId)?.tasks?.firstOrNull { it.id == taskId }
+
+    fun getTaskListByType(type: TaskType): Single<List<Task>> =
+        database.getAllTaskLists()
+            .map { taskLists ->
+                val tasks = mutableListOf<Task>()
+                taskLists.map { it.toModel() }.run {
+                    forEach { tasks.addAll(it.tasks) }
+                }
+                tasks
+            }
+            .flatMap { tasks ->
+                Observable.fromIterable(tasks)
+                    .filter {
+                        when (type) {
+                            TaskType.IMPORTANT -> it.isImportant
+                            TaskType.MY_DAY -> it.isInMyDate
+                            TaskType.COMPLETED -> it.isCompleted
+                            else -> false
+                        }
+                    }.toList()
+            }
 
     fun getTaskLists(): Completable =
         database.getAllTaskLists()
