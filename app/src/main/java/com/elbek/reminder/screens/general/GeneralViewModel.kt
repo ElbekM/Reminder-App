@@ -14,8 +14,6 @@ import com.elbek.reminder.screens.general.adapters.TaskCardType
 import com.elbek.reminder.screens.general.adapters.TaskTypeItem
 import com.elbek.reminder.screens.taskList.TaskListLaunchArgs
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 
 class GeneralViewModel @ViewModelInject constructor(
     private val taskListInteractor: TaskListInteractor,
@@ -34,25 +32,21 @@ class GeneralViewModel @ViewModelInject constructor(
 
     fun init() {
         taskListInteractor.databaseUpdated
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
+            .subscribeOnIoObserveOnMain {
                 taskLists = it.toMutableList()
 
                 setupTaskTypes()
                 setupTaskCards()
-            }, {})
+            }
             .addToSubscriptions()
 
         defaultTaskListInteractor.databaseUpdated
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
+            .subscribeOnIoObserveOnMain {
                 defaultTaskList = it
                 setupTaskTypes()
 
                 //openTaskListScreenCommand.call(defaultTaskLists[0].id)
-            }, {})
+            }
             .addToSubscriptions()
 
         loadData()
@@ -96,11 +90,7 @@ class GeneralViewModel @ViewModelInject constructor(
                     type = it
                 )
             }.toList()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                taskTypes.value = it
-            }, { logError(it) })
+            .subscribeOnIoObserveOnMain { taskTypes.value = it }
             .addToSubscriptions()
     }
 
@@ -118,11 +108,7 @@ class GeneralViewModel @ViewModelInject constructor(
             .map { items ->
                 items.also { it.add(TaskCardItem(cardType = TaskCardType.ADD)) }
             }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                taskCards.value = it
-            }, { logError(it) })
+            .subscribeOnIoObserveOnMain { taskCards.value = it }
             .addToSubscriptions()
     }
 }

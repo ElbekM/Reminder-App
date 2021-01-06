@@ -22,6 +22,7 @@ class TaskListSettingsViewModel @ViewModelInject constructor(
     val taskListRemoved = Command()
 
     fun init(taskListId: String?) {
+        //TODO: Tasks list comes with id
         this.taskListId = taskListId ?: run {
             isCustomTaskList = false
             defaultTaskListInteractor.getTaskListId()

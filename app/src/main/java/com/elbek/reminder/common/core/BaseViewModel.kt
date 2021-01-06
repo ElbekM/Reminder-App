@@ -15,6 +15,7 @@ import androidx.lifecycle.AndroidViewModel
 import com.elbek.reminder.common.core.commands.Command
 import com.elbek.reminder.common.core.commands.TCommand
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -89,6 +90,11 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
     protected fun Disposable.addToSubscriptions() { subscriptions.add(this) }
 
     protected fun <T> Single<T>.subscribeOnIoObserveOnMain(block: (T) -> Unit = {}) =
+        this.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ block(it) }, { logError(it) })
+
+    protected fun <T> Observable<T>.subscribeOnIoObserveOnMain(block: (T) -> Unit = {}) =
         this.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ block(it) }, { logError(it) })

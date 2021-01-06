@@ -30,7 +30,7 @@ class NewTaskBottomSheetFragment : BaseBottomSheetFragment<NewTaskViewModel>() {
         initViews()
         bindViewModel()
         viewModel.init(
-            requireArguments().getString(taskListIdKey)!!
+            requireArguments().getSerializable(newTaskArgsKey) as NewTaskLaunchArgs
         )
     }
 
@@ -45,11 +45,11 @@ class NewTaskBottomSheetFragment : BaseBottomSheetFragment<NewTaskViewModel>() {
     }
 
     companion object {
-        private val taskListIdKey: String = ::taskListIdKey.name
+        private val newTaskArgsKey: String = ::newTaskArgsKey.name
 
-        fun newInstance(taskListId: String): NewTaskBottomSheetFragment =
+        fun newInstance(args: NewTaskLaunchArgs): NewTaskBottomSheetFragment =
             NewTaskBottomSheetFragment().apply {
-                arguments = bundleOf(taskListIdKey to taskListId)
+                arguments = bundleOf(newTaskArgsKey to args)
             }
     }
 }

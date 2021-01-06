@@ -39,7 +39,6 @@ class TaskViewModel @ViewModelInject constructor(
         } ?: throw NullPointerException()
 
         updateView()
-        //TODO: subscribe to Subjects
     }
 
     fun onAddNewSubTaskClicked() {
@@ -82,11 +81,11 @@ class TaskViewModel @ViewModelInject constructor(
     private fun updateTask(block: () -> Unit = {}) {
         if (isCustomTaskList) {
             taskListInteractor.updateTask(taskListId, task)
-                .subscribeOnIoObserveOnMain { block() }
+                .subscribeOnIoObserveOnMain(block)
                 .addToSubscriptions()
         } else {
             defaultTaskListInteractor.updateTask(taskListId, task)
-                .subscribeOnIoObserveOnMain { block() }
+                .subscribeOnIoObserveOnMain(block)
                 .addToSubscriptions()
         }
     }
