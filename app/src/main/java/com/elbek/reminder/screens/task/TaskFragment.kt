@@ -10,6 +10,7 @@ import com.elbek.reminder.R
 import com.elbek.reminder.common.core.BaseFragment
 import com.elbek.reminder.common.extensions.bindDataToAction
 import com.elbek.reminder.common.extensions.bindText
+import com.elbek.reminder.common.extensions.setStrikeFlag
 import com.elbek.reminder.common.extensions.setTint
 import com.elbek.reminder.databinding.FragmentTaskBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,6 +47,10 @@ class TaskFragment : BaseFragment<TaskViewModel>() {
             bindText(viewModel.taskNameText, taskNameEditText)
             bindText(viewModel.taskNotesText, taskNotesEditText)
 
+            bindDataToAction(viewModel.isTaskCompleted) { completed ->
+                taskCheckbox.isChecked = completed
+                taskNameEditText.setStrikeFlag(completed)
+            }
             bindDataToAction(viewModel.isImportant) { important ->
                 importantImageView.apply {
                     if (important) setTint(R.color.colorPrimary)
@@ -64,6 +69,7 @@ class TaskFragment : BaseFragment<TaskViewModel>() {
     private fun initViews() = with(binding) {
         backImageView.setOnClickListener { onBackPressed() }
         deleteImageView.setOnClickListener { viewModel.onDeleteTaskClicked() }
+        taskCheckbox.setOnClickListener { viewModel.onTaskCheckboxClicked() }
         importantImageView.setOnClickListener { viewModel.onImportantClicked() }
         addSubTaskLayout.setOnClickListener { viewModel.onAddNewSubTaskClicked() }
         myDayLayout.setOnClickListener { viewModel.onAddToMyDayClicked() }

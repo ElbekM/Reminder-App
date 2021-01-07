@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.elbek.reminder.databinding.ViewTaskItemBinding
 
 class TaskListAdapter(
-    private val itemClicked: ((Pair<Int, TaskClickType>)) -> Unit
+    private val itemClicked: ((Pair<String, TaskClickType>)) -> Unit
 ) : RecyclerView.Adapter<TaskListViewHolder>() {
 
     private var items: List<TaskListItem>? = null

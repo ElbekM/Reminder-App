@@ -1,27 +1,37 @@
 package com.elbek.reminder.screens.taskList.adapter
 
 import androidx.recyclerview.widget.RecyclerView
+import com.elbek.reminder.R
+import com.elbek.reminder.common.extensions.setStrikeFlag
+import com.elbek.reminder.common.extensions.setTint
 import com.elbek.reminder.databinding.ViewTaskItemBinding
 
 class TaskListViewHolder(
     private val binding: ViewTaskItemBinding,
-    private val itemClicked: (Pair<Int, TaskClickType>) -> Unit
+    private val itemClicked: (Pair<String, TaskClickType>) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(item: TaskListItem) = with(binding) {
-        //TODO: implement important logic
-        taskTitleTextView.text = item.name
+        taskTitleTextView.apply {
+            setStrikeFlag(item.isCompleted)
+            text = item.name
+        }
         taskSubtitleTextView.text = item.taskCompleted
-        taskCheckbox.isChecked = item.isCompleted
-        //importantImageView = item.isImportant
 
-        itemView.setOnClickListener { itemClicked(adapterPosition to TaskClickType.TASK) }
-        importantImageView.setOnClickListener { itemClicked(adapterPosition to TaskClickType.IMPORTANT) }
+        importantImageView.apply {
+            if (item.isImportant) setTint(R.color.colorWhite)
+            else setTint(R.color.colorPrimaryDark)
+            setOnClickListener { itemClicked(item.taskId to TaskClickType.IMPORTANT) }
+        }
+
         taskCheckbox.apply {
+            isChecked = item.isCompleted
             setOnClickListener {
                 isChecked = !item.isCompleted
-                itemClicked(adapterPosition to TaskClickType.CHECKBOX)
+                itemClicked(item.taskId to TaskClickType.CHECKBOX)
             }
         }
+
+        itemView.setOnClickListener { itemClicked(item.taskId to TaskClickType.TASK) }
     }
 }

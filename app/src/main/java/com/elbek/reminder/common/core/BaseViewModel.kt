@@ -27,21 +27,26 @@ import java.net.SocketTimeoutException
 abstract class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
     protected val context: Context by lazy { getApplication<Application>() }
-    protected val subscriptions = CompositeDisposable()
+    protected val subscriptionsAppLifecycle = CompositeDisposable()
+    protected val subscriptionsFragmentLifecycle = CompositeDisposable()
 
     val closeCommand = Command()
     val requestPermissionsCommand = TCommand<Pair<List<String>, Int>>()
     val showPermissionDialogDeniedByUserCommand = TCommand<Pair<String, Int>>()
 
     override fun onCleared() {
-        subscriptions.dispose()
-        subscriptions.clear()
+        subscriptionsAppLifecycle.dispose()
+        subscriptionsAppLifecycle.clear()
         super.onCleared()
     }
 
     open fun start() {}
     open fun stop() {}
-    open fun destroy() {}
+
+    open fun destroy() {
+        subscriptionsFragmentLifecycle.dispose()
+        subscriptionsFragmentLifecycle.clear()
+    }
 
     open fun onPermissionsResult(requestCode: Int) { }
     open fun permissionDeniedByUser(requestCode: Int) { }
@@ -87,7 +92,8 @@ abstract class BaseViewModel(application: Application) : AndroidViewModel(applic
         }, delay)
     }
 
-    protected fun Disposable.addToSubscriptions() { subscriptions.add(this) }
+    protected fun Disposable.addToSubscriptions() { subscriptionsFragmentLifecycle.add(this) }
+    protected fun Disposable.addToAppSubscriptions() { subscriptionsAppLifecycle.add(this) }
 
     protected fun <T> Single<T>.subscribeOnIoObserveOnMain(block: (T) -> Unit = {}) =
         this.subscribeOn(Schedulers.io())

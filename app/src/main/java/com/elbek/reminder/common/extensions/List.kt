@@ -1,4 +1,11 @@
 package com.elbek.reminder.common.extensions
 
-fun <T> List<T>.update(newValue: T, condition: (T) -> Boolean): List<T> =
-    map { if (condition(it)) newValue else it }
+fun <T> MutableList<T>.update(newValue: T, predicate: (T) -> Boolean): Boolean {
+    this.forEachIndexed { index, value ->
+        if (predicate(value)) {
+            this[index] = newValue
+            return true
+        }
+    }
+    return false
+}

@@ -75,12 +75,22 @@ class TaskListFragment : BaseFragment<TaskListViewModel>(), TaskListSettingsBott
             bindDataToAction(viewModel.taskListItems) { items ->
                 var adapter = taskListRecyclerView.adapter as? TaskListAdapter
                 if (adapter == null) {
-                    adapter = TaskListAdapter { (position, clickType) ->
-                        viewModel.onTaskClicked(position, clickType)
+                    adapter = TaskListAdapter { (taskId, clickType) ->
+                        viewModel.onTaskClicked(taskId, clickType)
                     }
                     taskListRecyclerView.adapter = adapter
                 }
                 adapter.setItems(items)
+            }
+            bindDataToAction(viewModel.completedTaskListItems) { items ->
+                var adapter = completedTaskListRecyclerView.adapter as? TaskListAdapter
+                if (adapter == null) {
+                    adapter = TaskListAdapter { (taskId, clickType) ->
+                        viewModel.onTaskClicked(taskId, clickType)
+                    }
+                    completedTaskListRecyclerView.adapter = adapter
+                }
+                adapter!!.setItems(items)
             }
         }
     }

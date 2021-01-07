@@ -30,6 +30,7 @@ class TaskListInteractor @Inject constructor(
 
     val allDataBaseUpdated = PublishSubject.create<Unit>()
 
+    //TODO: check all non rx funcs usage, get copy of items
     fun getTaskListById(id: String): TaskList? = taskLists.findById(id)
 
     fun getTaskListIdByTask(taskId: String): String? {

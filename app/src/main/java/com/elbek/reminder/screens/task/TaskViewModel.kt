@@ -26,6 +26,7 @@ class TaskViewModel @ViewModelInject constructor(
     val taskNameText = Text()
     val taskNotesText = Text()
 
+    val isTaskCompleted = Data(false)
     val isImportant = Data(false)
     val isInMyDay = Data(false)
 
@@ -43,6 +44,13 @@ class TaskViewModel @ViewModelInject constructor(
 
     fun onAddNewSubTaskClicked() {
         //TODO: add new subtasks
+    }
+
+    fun onTaskCheckboxClicked() {
+        task.isCompleted = !task.isCompleted
+        isTaskCompleted.value = task.isCompleted
+
+        updateTask()
     }
 
     fun onImportantClicked() {
@@ -95,6 +103,7 @@ class TaskViewModel @ViewModelInject constructor(
         toolbarTitleText.value = "List"
         taskNameText.value = task.name
         taskNotesText.value = task.description ?: ""
+        isTaskCompleted.value = task.isCompleted
         isImportant.value = task.isImportant
         isInMyDay.value = task.isInMyDate
     }

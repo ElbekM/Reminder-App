@@ -25,6 +25,7 @@ class TaskListViewModel @ViewModelInject constructor(
     application: Application
 ) : BaseViewModel(application) {
 
+    //TODO: check mutability of this var
     private var taskList: TaskList? = null
     private var taskListType: TaskType? = null
     private var allTasks: List<Task>? = null
@@ -34,12 +35,14 @@ class TaskListViewModel @ViewModelInject constructor(
 
     val addNewTaskButtonVisible = Visible()
     val taskListItems = DataList<TaskListItem>()
+    val completedTaskListItems = DataList<TaskListItem>()
 
     val setTaskListNameFocusCommand = Command()
     val openTaskScreenCommand = TCommand<TaskLaunchArgs>()
     val openNewTaskScreenCommand = TCommand<NewTaskLaunchArgs>()
     val openSettingsBottomSheetCommand = TCommand<String?>()
 
+    //TODO: refactor conditions, separate into scenarios
     fun init(args: TaskListLaunchArgs?) {
         if (args?.taskType != null) {
             taskListType = args.taskType
@@ -66,29 +69,38 @@ class TaskListViewModel @ViewModelInject constructor(
         }
     }
 
-    fun onTaskClicked(position: Int, type: TaskClickType) = when (type) {
+    fun onTaskClicked(taskId: String, type: TaskClickType) = when (type) {
         TaskClickType.TASK -> {
-            taskList?.let {
-                openTaskScreenCommand.call(
-                    TaskLaunchArgs(
-                        taskListId = it.id,
-                        taskId = it.tasks[position].id
-                    )
+            openTaskScreenCommand.call(
+                TaskLaunchArgs(
+                    taskListId = taskList?.id ?: taskListInteractor.getTaskListIdByTask(taskId),
+                    taskId = taskId
                 )
-            } ?: allTasks?.get(position)?.let { task ->
-                openTaskScreenCommand.call(
-                    TaskLaunchArgs(
-                        taskListId = taskListInteractor.getTaskListIdByTask(task.id),
-                        taskId = task.id
-                    )
-                )
+            )
+        }
+        else -> {
+            //TODO: refactor conditions
+            val task = (taskList?.tasks?.find { taskId == it.id } ?: allTasks!!.find { taskId == it.id })!!.apply {
+                when (type) {
+                    TaskClickType.CHECKBOX -> isCompleted = !isCompleted
+                    TaskClickType.IMPORTANT -> isImportant = !isImportant
+                    else -> {
+                        // no op
+                    }
+                }
             }
-        }
-        TaskClickType.CHECKBOX -> {
-            //TODO: implement checkbox logic
-        }
-        TaskClickType.IMPORTANT -> {
-            //TODO: implement important logic
+            val taskListId = taskListInteractor.getTaskListIdByTask(taskId) ?: defaultTaskListInteractor.getTaskListId()
+            val isCustomTaskList = !defaultTaskListInteractor.isDefaultTaskList(taskListId)
+
+            if (isCustomTaskList) {
+                taskListInteractor.updateTask(taskListId, task)
+                    .subscribeOnIoObserveOnMain()
+                    .addToSubscriptions()
+            } else {
+                defaultTaskListInteractor.updateTask(taskListId, task)
+                    .subscribeOnIoObserveOnMain()
+                    .addToSubscriptions()
+            }
         }
     }
 
@@ -162,19 +174,23 @@ class TaskListViewModel @ViewModelInject constructor(
         taskList?.let {
             taskListNameText.value = it.name ?: ""
             setTasks(it.tasks)
+            setCompleteTasks(it.tasks)
         } ?: run {
             taskListNameText.value = taskListType?.title ?: ""
             setTasks(allTasks)
+            setCompleteTasks(allTasks)
         }
 
         dateTimeText.value = "Saturday, 21 November"
-        addNewTaskButtonVisible.value = true
+        addNewTaskButtonVisible.value = (taskListType != TaskType.COMPLETED || taskListType == null)
     }
 
     private fun setTasks(tasks: List<Task>?) = tasks?.let { items ->
         Observable.fromIterable(items)
+            .filter { !it.isCompleted }
             .map {
                 TaskListItem(
+                    taskId = it.id,
                     name = it.name,
                     taskCompleted = "",
                     isImportant = it.isImportant,
@@ -182,6 +198,24 @@ class TaskListViewModel @ViewModelInject constructor(
                 )
             }.toList()
             .subscribeOnIoObserveOnMain { taskListItems.value = it }
+            .addToSubscriptions()
+    } ?: run {
+        //TODO: show some empty state
+    }
+
+    private fun setCompleteTasks(tasks: List<Task>?) = tasks?.let { items ->
+        Observable.fromIterable(items)
+            .filter { it.isCompleted }
+            .map {
+                TaskListItem(
+                    taskId = it.id,
+                    name = it.name,
+                    taskCompleted = "",
+                    isImportant = it.isImportant,
+                    isCompleted = it.isCompleted
+                )
+            }.toList()
+            .subscribeOnIoObserveOnMain { completedTaskListItems.value = it }
             .addToSubscriptions()
     } ?: run {
         //TODO: show some empty state
