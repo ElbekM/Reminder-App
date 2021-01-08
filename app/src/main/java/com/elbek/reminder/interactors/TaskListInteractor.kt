@@ -27,7 +27,6 @@ class TaskListInteractor @Inject constructor(
     }
 
     val databaseUpdated = PublishSubject.create<List<TaskList>>()
-
     val allDataBaseUpdated = PublishSubject.create<Unit>()
 
     //TODO: check all non rx funcs usage, get copy of items
@@ -42,9 +41,22 @@ class TaskListInteractor @Inject constructor(
         return null
     }
 
+    fun getTasksCountByType(taskType: TaskType): Int {
+        val tasks = mutableListOf<Task>()
+        taskLists.forEach { tasks.addAll(it.tasks) }
+
+        return when (taskType) {
+            TaskType.MY_DAY -> tasks.filter { it.isInMyDate && !it.isCompleted }.size
+            TaskType.IMPORTANT -> tasks.filter { it.isImportant && !it.isCompleted }.size
+            TaskType.TASKS -> 0
+            TaskType.COMPLETED -> tasks.filter { it.isCompleted }.size
+        }
+    }
+
     fun getTaskById(taskListId: String, taskId: String): Task? =
         taskLists.findById(taskListId)?.tasks?.firstOrNull { it.id == taskId }
 
+    //TODO: Check taskList, allTasks is in
     fun getTaskListByType(type: TaskType): Single<List<Task>> =
         database.getAllTaskLists()
             .map { taskLists ->

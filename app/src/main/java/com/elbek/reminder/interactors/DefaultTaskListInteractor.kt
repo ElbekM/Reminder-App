@@ -16,6 +16,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.properties.Delegates
 
+//TODO: Code refactoring
 @Singleton
 class DefaultTaskListInteractor @Inject constructor(
     private val taskListInteractor: TaskListInteractor,
@@ -31,6 +32,13 @@ class DefaultTaskListInteractor @Inject constructor(
     fun getTaskById(taskId: String) = taskList.tasks.firstOrNull { it.id == taskId }
 
     fun getTaskListId(): String = taskList.id
+
+    fun getTasksCountByType(taskType: TaskType): Int = when (taskType) {
+        TaskType.MY_DAY -> taskList.tasks.filter { it.isInMyDate && !it.isCompleted }.size
+        TaskType.IMPORTANT -> taskList.tasks.filter { it.isImportant && !it.isCompleted }.size
+        TaskType.TASKS -> taskList.tasks.filter { !it.isCompleted }.size
+        TaskType.COMPLETED -> taskList.tasks.filter { it.isCompleted }.size
+    }
 
     //TODO: refactor filter
     fun getTaskList(): Completable =

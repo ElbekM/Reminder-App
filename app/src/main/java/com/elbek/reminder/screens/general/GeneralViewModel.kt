@@ -32,20 +32,17 @@ class GeneralViewModel @ViewModelInject constructor(
 
     fun init() {
         taskListInteractor.databaseUpdated
-            .subscribeOnIoObserveOnMain {
-                taskLists = it.toMutableList()
-
-                setupTaskTypes()
-                setupTaskCards()
-            }
+            .subscribeOnIoObserveOnMain { taskLists = it.toMutableList() }
             .addToSubscriptions()
 
         defaultTaskListInteractor.databaseUpdated
-            .subscribeOnIoObserveOnMain {
-                defaultTaskList = it
-                setupTaskTypes()
+            .subscribeOnIoObserveOnMain { defaultTaskList = it }
+            .addToSubscriptions()
 
-                //openTaskListScreenCommand.call(defaultTaskLists[0].id)
+        taskListInteractor.allDataBaseUpdated
+            .subscribeOnIoObserveOnMain {
+                setupTaskTypes()
+                setupTaskCards()
             }
             .addToSubscriptions()
 
@@ -86,7 +83,7 @@ class GeneralViewModel @ViewModelInject constructor(
                 TaskTypeItem(
                     icon = it.icon,
                     title = it.title,
-                    taskCount = 0,
+                    taskCount = getTaskCountByType(it),
                     type = it
                 )
             }.toList()
@@ -95,14 +92,16 @@ class GeneralViewModel @ViewModelInject constructor(
     }
 
     private fun setupTaskCards() {
-        //TODO: get progress
         Observable.fromIterable(taskLists)
             .map {
                 TaskCardItem(
                     icon = it.icon,
                     title = it.name,
-                    taskCount = it.tasks.size,
-                    progress = 0
+                    taskCount = it.tasks.filter { task -> !task.isCompleted }.size,
+                    progress = it.tasks.let { tasks ->
+                        val completedTasks = tasks.filter { task -> task.isCompleted }.size
+                        (completedTasks * 1.0 / tasks.size) * 100
+                    }.toInt()
                 )
             }.toList()
             .map { items ->
@@ -111,4 +110,7 @@ class GeneralViewModel @ViewModelInject constructor(
             .subscribeOnIoObserveOnMain { taskCards.value = it }
             .addToSubscriptions()
     }
+
+    private fun getTaskCountByType(taskType: TaskType): Int =
+        taskListInteractor.getTasksCountByType(taskType) + defaultTaskListInteractor.getTasksCountByType(taskType)
 }
