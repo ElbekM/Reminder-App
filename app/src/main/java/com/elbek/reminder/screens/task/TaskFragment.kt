@@ -8,11 +8,15 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import com.elbek.reminder.R
 import com.elbek.reminder.common.core.BaseFragment
+import com.elbek.reminder.common.extensions.bindCommand
 import com.elbek.reminder.common.extensions.bindDataToAction
 import com.elbek.reminder.common.extensions.bindText
 import com.elbek.reminder.common.extensions.setStrikeFlag
 import com.elbek.reminder.common.extensions.setTint
+import com.elbek.reminder.common.extensions.show
 import com.elbek.reminder.databinding.FragmentTaskBinding
+import com.elbek.reminder.screens.task.adapter.SubTaskListAdapter
+import com.elbek.reminder.screens.task.newSubTask.NewSubTaskBottomSheetFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -47,6 +51,12 @@ class TaskFragment : BaseFragment<TaskViewModel>() {
             bindText(viewModel.taskNameText, taskNameEditText)
             bindText(viewModel.taskNotesText, taskNotesEditText)
 
+            bindCommand(viewModel.openNewSubTaskScreenCommand) {
+                NewSubTaskBottomSheetFragment
+                    .newInstance(it)
+                    .show(childFragmentManager)
+            }
+
             bindDataToAction(viewModel.isTaskCompleted) { completed ->
                 taskCheckbox.isChecked = completed
                 taskNameEditText.setStrikeFlag(completed)
@@ -62,6 +72,16 @@ class TaskFragment : BaseFragment<TaskViewModel>() {
                     if (inMyDay) setTint(R.color.colorPrimary)
                     else setTint(R.color.colorPrimaryDark)
                 }
+            }
+            bindDataToAction(viewModel.subTaskItems) { items ->
+                var adapter = subTaskRecyclerView.adapter as? SubTaskListAdapter
+                if (adapter == null) {
+                    adapter = SubTaskListAdapter { (position, clickType) ->
+                        viewModel.onSubTaskClicked(position, clickType)
+                    }
+                    subTaskRecyclerView.adapter = adapter
+                }
+                adapter.setItems(items)
             }
         }
     }

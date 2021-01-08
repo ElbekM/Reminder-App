@@ -34,7 +34,7 @@ data class TaskEntity(
         id = id,
         name = name,
         description = description,
-        subTasks = subTasks?.map { it.toModel() },
+        subTasks = subTasks?.map { it.toModel() }?.toMutableList() ?: mutableListOf(),
         createdDate = createdDate,
         date = date,
         isImportant = isImportant,
